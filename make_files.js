@@ -12,7 +12,7 @@ const vuepressConfigPath = path.join(workDir, 'docs', '.vuepress', 'config.json'
 
 const configFilename = 'comtext.yml';
 
-const sourceDir = './';
+const sourceDir = '..';
 
 const readYamlFile = (filename) => {
   const file = fs.readFileSync(filename, 'utf-8');
