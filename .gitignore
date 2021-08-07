@@ -1,0 +1,12 @@
+node_modules
+
+docs/.vuepress/dist
+docs/*.md
+docs/*.md
+docs/.vuepress/public/img/*.jpg
+docs/.vuepress/public/img/*.png
+
+.temp
+.cache
+*.log
+
