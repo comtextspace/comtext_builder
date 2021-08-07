@@ -67,6 +67,10 @@ const moveBook = (bookConfigFilename) => {
 };
 
 const moveBooks = () => {
+  if (config.books === null) {
+    return null;
+  }
+
   config.books.forEach((bookConfigFilename) => {
     moveBook(bookConfigFilename);
   });
