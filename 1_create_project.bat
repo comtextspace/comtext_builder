@@ -1,9 +1,8 @@
 chcp 65001
 
 REM Скрипт создает проект NodeJS для VuePress и устанавливает все зависимости
-REM версии зависимостей прописаны в файле yarn.lock
 
-call yarn install --immutable
+call npm ci
 
 cd docs
 cd .vuepress

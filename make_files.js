@@ -1,73 +1,75 @@
 const fs = require('fs');
 const path = require('path');
 
-const prefix_path = './';
+const YAML = require('yaml');
+const _ = require('lodash');
 
-const dest_image_path = prefix_path + 'builder/docs/.vuepress/public/img/';
-const dest_md_path = prefix_path + 'builder/docs/';
+const workDir = path.dirname(__filename);
 
-const source_image_folder = 'img';
+const destImageDir = path.join(workDir, 'docs', '.vuepress', 'public', 'img');
+const destMdDir = path.join(workDir, 'docs');
 
-function getMdFiles(dir, files_){
-    files_ = files_ || [];
-    var files = fs.readdirSync(dir);
-    for (var i in files){
-        var name = dir + '/' + files[i];
-        if (!fs.statSync(name).isDirectory()){
-            if (path.parse(name).ext === '.md') {
-                files_.push(name);
-            }
-        }
-    }
-    return files_;
-}
+const configFilename = 'comtext.yml';
 
-function getFiles(dir, files_){
-    files_ = files_ || [];
-    var files = fs.readdirSync(dir);
-    for (var i in files){
-        var name = dir + '/' + files[i];
-        if (!fs.statSync(name).isDirectory()){
-            files_.push(name);
-        }
-    }
-    return files_;
-}
+const sourceDir = './';
 
-function concatFiles(folder, out_file){
-    var files = getMdFiles(folder);
-    
-    var result = '';
-    
-    for (var file_index in files) {
-        var str = files[file_index];
-       
-        var buf = fs.readFileSync(str);
-    
-        result += buf;
-    }
+const readYamlFile = (filename) => {
+  const file = fs.readFileSync(filename, 'utf-8');
+  return YAML.parse(file);
+};
 
-    fs.writeFileSync(out_file, result);
-}
+const readConfig = () => {
+  const configPath = path.join(sourceDir, configFilename);
+  return readYamlFile(configPath);
+};
 
-function copyImages(folder, out_file){
-    var images = getFiles(folder + '/' + source_image_folder);
-    
-    for (var file_index in images) {
-        var str = images[file_index];
-              
-        fs.copyFileSync(str, dest_image_path + path.parse(str).base);
-    
-    }
-}
+const config = readConfig();
 
+const movePages = () => {
+  config.pages.forEach((pageFilename) => {
+    const sourseFilename = path.join(sourceDir, pageFilename);
+    const destFilename = path.join(destMdDir, pageFilename);
+    fs.copyFileSync(sourseFilename, destFilename);
+  });
+};
 
-const book = '01';
+const concatFiles = (sourceFiles, destPath) => {
+  const bookContent = sourceFiles.map((filename) => fs.readFileSync(filename, 'utf-8'));
+  fs.writeFileSync(destPath, bookContent.join(''));
+};
 
-concatFiles(prefix_path + 'Т' + book, dest_md_path + book + '.md');
-copyImages(prefix_path + 'Т' + book, '');
+const moveBook = (bookConfigFilename) => {
+  const bookConfig = readYamlFile(path.join(sourceDir, bookConfigFilename));
+  const bookDir = path.join(sourceDir, path.dirname(bookConfigFilename));
 
+  const bookFiles = bookConfig.files.map((filename) => path.join(bookDir, filename));
+  const destBookPath = path.join(destMdDir, bookConfig.filename);
 
+  concatFiles(bookFiles, destBookPath);
 
+  if (_.has(bookConfig, 'cover')) {
+    const sourceCoverPath = path.join(bookDir, bookConfig.cover);
+    const destCoverPath = path.join(destImageDir, bookConfig.cover);
+    fs.copyFileSync(sourceCoverPath, destCoverPath);
+  }
 
+  const sourceImagesPath = path.join(bookDir, 'img');
 
+  if (fs.existsSync(sourceImagesPath)) {
+    const images = fs.readdirSync(sourceImagesPath);
+    images.forEach((imageFilename) => {
+      const sourceImg = path.join(sourceImagesPath, imageFilename);
+      const destImg = path.join(destImageDir, imageFilename);
+      fs.copyFileSync(sourceImg, destImg);
+    });
+  }
+};
+
+const moveBooks = () => {
+  config.books.forEach((bookConfigFilename) => {
+    moveBook(bookConfigFilename);
+  });
+};
+
+movePages();
+moveBooks();
