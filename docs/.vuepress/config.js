@@ -1,6 +1,14 @@
+fs = require('fs');
+path = require('path');
+
+const workDir = path.dirname(__filename);
+const jsonConfigPath = path.join(workDir, 'config.json');
+const json_config = JSON.parse(fs.readFileSync(jsonConfigPath, 'utf-8'));
+
 module.exports = {
   lang: 'ru-RU',
-  title: 'Собрание сочинений Н. Г. Чернышевского',
+  title: json_config.title,
+  base: json_config.base,
   description: '',
   themeConfig: {
     contributors: false,

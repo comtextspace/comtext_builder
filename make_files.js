@@ -8,6 +8,7 @@ const workDir = path.dirname(__filename);
 
 const destImageDir = path.join(workDir, 'docs', '.vuepress', 'public', 'img');
 const destMdDir = path.join(workDir, 'docs');
+const vuepressConfigPath = path.join(workDir, 'docs', '.vuepress', 'config.json');
 
 const configFilename = 'comtext.yml';
 
@@ -71,5 +72,15 @@ const moveBooks = () => {
   });
 };
 
+const updateVuepressConfig = () => {
+  const vuepressConfig = JSON.parse(fs.readFileSync(vuepressConfigPath, 'utf-8'));
+
+  vuepressConfig.title = _.get(config, 'vuepress.title', '');
+  vuepressConfig.base = _.get(config, 'vuepress.base', '/');
+
+  fs.writeFileSync(vuepressConfigPath, JSON.stringify(vuepressConfig));
+};
+
 movePages();
 moveBooks();
+updateVuepressConfig();
