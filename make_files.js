@@ -39,6 +39,17 @@ const concatFiles = (sourceFiles, destPath) => {
   fs.writeFileSync(destPath, bookContent.join(''));
 };
 
+const moveFiles = (soursePath, destPath) => {
+  if (fs.existsSync(soursePath)) {
+    const images = fs.readdirSync(soursePath);
+    images.forEach((imageFilename) => {
+      const sourceImg = path.join(soursePath, imageFilename);
+      const destImg = path.join(destPath, imageFilename);
+      fs.copyFileSync(sourceImg, destImg);
+    });
+  }
+};
+
 const moveBook = (bookConfigFilename) => {
   const bookConfig = readYamlFile(path.join(sourceDir, bookConfigFilename));
   const bookDir = path.join(sourceDir, path.dirname(bookConfigFilename));
@@ -55,15 +66,7 @@ const moveBook = (bookConfigFilename) => {
   }
 
   const sourceImagesPath = path.join(bookDir, 'img');
-
-  if (fs.existsSync(sourceImagesPath)) {
-    const images = fs.readdirSync(sourceImagesPath);
-    images.forEach((imageFilename) => {
-      const sourceImg = path.join(sourceImagesPath, imageFilename);
-      const destImg = path.join(destImageDir, imageFilename);
-      fs.copyFileSync(sourceImg, destImg);
-    });
-  }
+  moveFiles(sourceImagesPath, destImageDir);
 };
 
 const moveBooks = () => {
@@ -88,3 +91,7 @@ const updateVuepressConfig = () => {
 movePages();
 moveBooks();
 updateVuepressConfig();
+
+// перемещение изображений для страниц
+const sourceImagesPath = path.join(sourceDir, 'img');
+moveFiles(sourceImagesPath, destImageDir);
