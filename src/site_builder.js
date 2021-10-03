@@ -62,8 +62,8 @@ const moveBook = (bookConfigFilename) => {
   const destBookPath = path.join(destMdDir, bookConfig.filename);
 
   console.log(bookFiles);
-
-  const bookContent = concatFiles(bookFiles);
+  let bookContent = concatFiles(bookFiles);
+  console.log(typeof bookContent);
 
   if (_.has(bookConfig, 'cover')) {
     const sourceCoverPath = path.join(bookDir, bookConfig.cover);
@@ -71,7 +71,7 @@ const moveBook = (bookConfigFilename) => {
     fs.copyFileSync(sourceCoverPath, destCoverPath);
 
     const coverMdLink = `![](${path.join(IMAGE_DIR, bookConfig.cover)})`;
-  //  bookContent = bookContent.replaceAll('[[cover]]', coverMdLink);
+    bookContent = bookContent.replaceAll('[[cover]]', coverMdLink);
   }
 
   fs.writeFileSync(destBookPath, bookContent);
