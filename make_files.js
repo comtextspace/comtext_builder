@@ -6,6 +6,7 @@ const _ = require('lodash');
 
 const workDir = path.dirname(__filename);
 
+const IMAGE_DIR = 'img';
 const destImageDir = path.join(workDir, 'docs', '.vuepress', 'public', 'img');
 const destMdDir = path.join(workDir, 'docs');
 const vuepressConfigPath = path.join(workDir, 'docs', '.vuepress', 'config.json');
@@ -34,9 +35,9 @@ const movePages = () => {
   });
 };
 
-const concatFiles = (sourceFiles, destPath) => {
+const concatFiles = (sourceFiles) => {
   const bookContent = sourceFiles.map((filename) => fs.readFileSync(filename, 'utf-8'));
-  fs.writeFileSync(destPath, bookContent.join(''));
+  return bookContent.join('');
 };
 
 const moveFiles = (soursePath, destPath) => {
@@ -57,15 +58,20 @@ const moveBook = (bookConfigFilename) => {
   const bookFiles = bookConfig.files.map((filename) => path.join(bookDir, filename));
   const destBookPath = path.join(destMdDir, bookConfig.filename);
 
-  concatFiles(bookFiles, destBookPath);
+  let bookContent = concatFiles(bookFiles);
 
   if (_.has(bookConfig, 'cover')) {
     const sourceCoverPath = path.join(bookDir, bookConfig.cover);
     const destCoverPath = path.join(destImageDir, bookConfig.cover);
     fs.copyFileSync(sourceCoverPath, destCoverPath);
+
+    const coverMdLink = `![](${path.join(IMAGE_DIR, bookConfig.cover)})`;
+    bookContent = bookContent.replaceAll('[[cover]]', coverMdLink);
   }
 
-  const sourceImagesPath = path.join(bookDir, 'img');
+  fs.writeFileSync(destBookPath, bookContent);
+
+  const sourceImagesPath = path.join(bookDir, IMAGE_DIR);
   moveFiles(sourceImagesPath, destImageDir);
 };
 
@@ -93,5 +99,5 @@ moveBooks();
 updateVuepressConfig();
 
 // перемещение изображений для страниц
-const sourceImagesPath = path.join(sourceDir, 'img');
+const sourceImagesPath = path.join(sourceDir, IMAGE_DIR);
 moveFiles(sourceImagesPath, destImageDir);
