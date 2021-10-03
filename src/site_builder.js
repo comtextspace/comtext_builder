@@ -4,16 +4,16 @@ const path = require('path');
 const YAML = require('yaml');
 const _ = require('lodash');
 
-const workDir = path.dirname(__filename);
+let workDir;
+let destImageDir;
+let destMdDir;
+let vuepressConfigPath;
 
 const IMAGE_DIR = 'img';
-const destImageDir = path.join(workDir, 'docs', '.vuepress', 'public', 'img');
-const destMdDir = path.join(workDir, 'docs');
-const vuepressConfigPath = path.join(workDir, 'docs', '.vuepress', 'config.json');
 
 const configFilename = 'comtext.yml';
 
-const sourceDir = '..';
+let sourceDir;
 
 const readYamlFile = (filename) => {
   const file = fs.readFileSync(filename, 'utf-8');
@@ -25,15 +25,7 @@ const readConfig = () => {
   return readYamlFile(configPath);
 };
 
-const config = readConfig();
-
-const movePages = () => {
-  config.pages.forEach((pageFilename) => {
-    const sourseFilename = path.join(sourceDir, pageFilename);
-    const destFilename = path.join(destMdDir, pageFilename);
-    fs.copyFileSync(sourseFilename, destFilename);
-  });
-};
+let config;
 
 const concatFiles = (sourceFiles) => {
   const bookContent = sourceFiles.map((filename) => fs.readFileSync(filename, 'utf-8'));
@@ -49,6 +41,17 @@ const moveFiles = (soursePath, destPath) => {
       fs.copyFileSync(sourceImg, destImg);
     });
   }
+};
+
+const movePages = () => {
+  config.pages.forEach((pageFilename) => {
+    const sourseFilename = path.join(sourceDir, pageFilename);
+    const destFilename = path.join(destMdDir, pageFilename);
+    fs.copyFileSync(sourseFilename, destFilename);
+  });
+  // перемещение изображений для страниц
+  const sourceImagesPath = path.join(sourceDir, IMAGE_DIR);
+  moveFiles(sourceImagesPath, destImageDir);
 };
 
 const moveBook = (bookConfigFilename) => {
@@ -75,6 +78,7 @@ const moveBook = (bookConfigFilename) => {
   moveFiles(sourceImagesPath, destImageDir);
 };
 
+// eslint-disable-next-line consistent-return
 const moveBooks = () => {
   if (config.books === null) {
     return null;
@@ -94,10 +98,19 @@ const updateVuepressConfig = () => {
   fs.writeFileSync(vuepressConfigPath, JSON.stringify(vuepressConfig));
 };
 
-movePages();
-moveBooks();
-updateVuepressConfig();
+const build = (source = '..', dest = '.') => {
+  sourceDir = source;
+  workDir = dest;
 
-// перемещение изображений для страниц
-const sourceImagesPath = path.join(sourceDir, IMAGE_DIR);
-moveFiles(sourceImagesPath, destImageDir);
+  destImageDir = path.join(workDir, 'docs', '.vuepress', 'public', 'img');
+  destMdDir = path.join(workDir, 'docs');
+  vuepressConfigPath = path.join(workDir, 'docs', '.vuepress', 'config.json');
+
+  config = readConfig();
+
+  movePages();
+  moveBooks();
+  updateVuepressConfig();
+};
+
+module.exports.build = build;

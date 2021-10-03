@@ -1,0 +1,9 @@
+vuepress:
+  title: "Библиотека"
+  base: "/"
+
+pages:
+  - index.md
+
+books:
+  - book/book.yml
