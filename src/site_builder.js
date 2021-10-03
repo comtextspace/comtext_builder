@@ -71,7 +71,7 @@ const moveBook = (bookConfigFilename) => {
     fs.copyFileSync(sourceCoverPath, destCoverPath);
 
     const coverMdLink = `![](${path.join(IMAGE_DIR, bookConfig.cover)})`;
-    bookContent = bookContent.replaceAll('[[cover]]', coverMdLink);
+    bookContent = bookContent.replace('[[cover]]', coverMdLink);
   }
 
   fs.writeFileSync(destBookPath, bookContent);
