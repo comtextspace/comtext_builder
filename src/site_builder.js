@@ -61,9 +61,7 @@ const moveBook = (bookConfigFilename) => {
   const bookFiles = bookConfig.files.map((filename) => path.join(bookDir, filename));
   const destBookPath = path.join(destMdDir, bookConfig.filename);
 
-  console.log(bookFiles);
   let bookContent = concatFiles(bookFiles);
-  console.log(typeof bookContent);
 
   if (_.has(bookConfig, 'cover')) {
     const sourceCoverPath = path.join(bookDir, bookConfig.cover);
