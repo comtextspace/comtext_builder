@@ -95,6 +95,10 @@ const updateVuepressConfig = () => {
   vuepressConfig.title = _.get(config, 'vuepress.title', '');
   vuepressConfig.base = _.get(config, 'vuepress.base', '/');
 
+  if (_.has(config, 'vuepress.revisionmeProjectId')) {
+    vuepressConfig.revisionmeProjectId = config.vuepress.revisionmeProjectId;
+  }
+
   fs.writeFileSync(vuepressConfigPath, JSON.stringify(vuepressConfig));
 };
 
