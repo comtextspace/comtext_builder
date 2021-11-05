@@ -47,6 +47,12 @@ module.exports = {
   },
   
   markdown: {
+    toc: {
+      level: [2, 3, 4]
+    },
+    extractHeaders: {
+      level: [2, 3, 4, 5, 6]
+    }
   },    
 
   extendsMarkdown: (md) => {
