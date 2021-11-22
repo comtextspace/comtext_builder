@@ -1,5 +1,11 @@
 const path = require('path');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const siteBuilder = require('./src/site_builder.js');
 
-siteBuilder.build(path.join(path.dirname(__filename), '..'), path.dirname(__filename));
+const rootDir = path.dirname(__filename);
+const booksDir = process.env.PATH_TO_BOOKS ?? path.join(rootDir, '..');
+
+siteBuilder.build(booksDir, rootDir);

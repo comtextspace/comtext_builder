@@ -1,6 +1,8 @@
 /.idea
 node_modules
 
+.env
+
 docs/.vuepress/dist
 docs/*.md
 docs/*.md
