@@ -1,17 +1,26 @@
-fs = require('fs');
-path = require('path');
+import fs from "fs";
+import path from "path";
+
+import { defaultTheme } from "@vuepress/theme-default";
+
+import md_table from "markdown-it-multimd-table";
+import md_katex from "@iktakahiro/markdown-it-katex";
+import md_footnote from "markdown-it-footnote";
 
 const workDir = path.dirname(__filename);
-const jsonConfigPath = path.join(workDir, 'config.json');
-const json_config = JSON.parse(fs.readFileSync(jsonConfigPath, 'utf-8'));
+const jsonConfigPath = path.join(workDir, "config.json");
+const json_config = JSON.parse(fs.readFileSync(jsonConfigPath, "utf-8"));
 
 const makeRevisionmeHeader = (config) => {
   if (!config.revisionmeProjectId) {
     return [];
   }
-  
+
   return [
-    	['script', {}, `
+    [
+      "script",
+      {},
+      `
 	    var __rm__config = {
 			projectId: '${config.revisionmeProjectId}',
 			locale: 'ru',
@@ -21,75 +30,72 @@ const makeRevisionmeHeader = (config) => {
 			floatingBtnPosition: 'left',
 			floatingBtnStyle: 'light',
 			};
-    `],
-    ['script', { src: "https://widget.revisionme.com/app.js", defer: "defer", id: "rm_app_script", }],
-  ]
-}
+    `,
+    ],
+    [
+      "script",
+      {
+        src: "https://widget.revisionme.com/app.js",
+        defer: "defer",
+        id: "rm_app_script",
+      },
+    ],
+  ];
+};
 
 const revisionmeHeader = makeRevisionmeHeader(json_config);
 
 module.exports = {
-  lang: 'ru-RU',
+  lang: "ru-RU",
   title: json_config.title,
   base: json_config.base,
-  description: '',
+  description: "",
   head: [
-    ...revisionmeHeader
-  ],
-  themeConfig: {
-    contributors: false,
-    lastUpdatedText: 'Последние обновление',
-    sidebar: false,
-    
-    themePlugins: {
-        
-    }
-  },
-  
-  markdown: {
-    toc: {
-      level: [2, 3, 4]
-    },
-    extractHeaders: {
-      level: [2, 3, 4, 5, 6]
-    }
-  },    
-
-  extendsMarkdown: (md) => {
-    md.use(require('markdown-it-footnote'));
-    md.use(require('markdown-it-multimd-table'), {
-   			  multiline:  true,
-          rowspan:    true,
-          headerless: true
-			 });
-  },
-  
-  plugins: [
+    ...revisionmeHeader,
     [
-      '@vuepress/plugin-search',
+      "link",
       {
-        locales: {
-          '/': {
-            placeholder: 'Поиск',
-          }
-        },
+        rel: "stylesheet",
+        href: "https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css",
       },
     ],
-    ['@maginapp/vuepress-plugin-katex', { delimiters: 'dollars',
-	                                      katexOptions: { strict: katex_strict_handler }
-	                                    }]
- 
   ],
-}
 
+  theme: defaultTheme({
+    sidebar: false,
+    contributors: false,
+    lastUpdatedText: "Последниее изменение",
+  }),
 
+  markdown: {
+    toc: {
+      level: [2, 3, 4],
+    },
+    extractHeaders: {
+      level: [2, 3, 4, 5, 6],
+    },
+  },
+
+  extendsMarkdown: (md) => {
+    md.use(md_footnote);
+    md.use(md_table, {
+      multiline: true,
+      rowspan: true,
+      headerless: true,
+    });
+    md.use(md_katex, {
+      strict: false,
+      //  katexOptions: { strict: katex_strict_handler },
+    });
+  },
+};
 
 // Обработчик вызывается при появлении ошибки при обработке формы KaTeX
 // https://katex.org/docs/options.html
 function katex_strict_handler(errorCode, errorMsg, token) {
-    if (errorCode === 'unicodeTextInMathMode') {
-        return 'ignore'
-    } else {
-        return 'warn'
-    }
+  if (errorCode === "unicodeTextInMathMode") {
+    return "ignore";
+  } else {
+    return "warn";
+  }
 }
