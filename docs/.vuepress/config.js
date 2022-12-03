@@ -4,7 +4,7 @@ import path from "path";
 import { defaultTheme } from "@vuepress/theme-default";
 
 import md_table from "markdown-it-multimd-table";
-import md_katex from "@iktakahiro/markdown-it-katex";
+import md_katex from "@traptitech/markdown-it-katex";
 import md_footnote from "markdown-it-footnote";
 
 const workDir = path.dirname(__filename);
