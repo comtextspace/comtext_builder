@@ -6,7 +6,7 @@
   "author": "KonstantinSh <Kverde@yandex.ru>",
   "license": "MIT",
   "devDependencies": {
-    "@comtext/markdown-it-book-page-number": "^0.1.4",
+    "@comtext/markdown-it-book-page-number": "^0.2.0",
     "@traptitech/markdown-it-katex": "^3.6.0",
     "@vue/component-compiler-utils": "^3.2.0",
     "@vuepress/plugin-search": "^1.9.7",

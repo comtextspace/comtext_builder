@@ -3,11 +3,14 @@ node_modules
 
 .env
 
+docs/**/*.md
+docs/**/*.yml
+docs/**/*.yaml
+docs/**/*.png
+docs/**/*.jpg
 docs/.vuepress/dist
-docs/*.md
-docs/*.md
-docs/.vuepress/public/img/*.jpg
-docs/.vuepress/public/img/*.png
+docs/.vuepress/public/img/png/*.jpg
+docs/.vuepress/public/img/png/*.png
 
 .temp
 .cache
