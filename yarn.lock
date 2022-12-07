@@ -290,6 +290,11 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@comtext/markdown-it-book-page-number@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@comtext/markdown-it-book-page-number/-/markdown-it-book-page-number-0.1.1.tgz#1f595362c58e70cac09a22efc76158affa4b02c6"
+  integrity sha512-JkWorg8Ri79CMwhzw3jFHRfAEjXlksPtI5k3crXep5yvKJ4QjODqZG/shir4CMHrboDvLjtDyjPCq/6SjG8r0Q==
+
 "@esbuild/android-arm@0.15.16":
   version "0.15.16"
   resolved "https://registry.yarnpkg.com/@esbuild/android-arm/-/android-arm-0.15.16.tgz#0642926178b15e3d1545efae6eee05c4f3451d15"
@@ -1614,11 +1619,6 @@
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
-
-"@zarya/markdown-it-book-page-number@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@zarya/markdown-it-book-page-number/-/markdown-it-book-page-number-0.1.0.tgz#ed2631b2e9dfee9a160cc75190c2c497cba4b379"
-  integrity sha512-ntzTdR40/aQCNDdhGHpcXwMvrsIp23U7Eo2Tl99ahZ14I4jeW0Yln9Ja11YIlanD1wl6Oik80haMVbwOA9bgRw==
 
 abab@^2.0.3, abab@^2.0.5:
   version "2.0.6"

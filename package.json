@@ -6,11 +6,11 @@
   "author": "KonstantinSh <Kverde@yandex.ru>",
   "license": "MIT",
   "devDependencies": {
+    "@comtext/markdown-it-book-page-number": "^0.1.1",
     "@traptitech/markdown-it-katex": "^3.6.0",
     "@vue/component-compiler-utils": "^3.2.0",
     "@vuepress/plugin-search": "^1.9.7",
     "@vuepress/shared-utils": "^1.9.7",
-    "@zarya/markdown-it-book-page-number": "^0.1.0",
     "eslint": "^8.28.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
