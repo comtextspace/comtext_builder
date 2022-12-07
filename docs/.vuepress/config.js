@@ -6,6 +6,7 @@ import { defaultTheme } from "@vuepress/theme-default";
 import md_table from "markdown-it-multimd-table";
 import md_katex from "@traptitech/markdown-it-katex";
 import md_footnote from "markdown-it-footnote";
+import md_page_number from "@comtext/markdown-it-book-page-number";
 
 const workDir = path.dirname(__filename);
 const jsonConfigPath = path.join(workDir, "config.json");
@@ -78,6 +79,7 @@ module.exports = {
 
   extendsMarkdown: (md) => {
     md.use(md_footnote);
+    md.use(md_page_number);
     md.use(md_table, {
       multiline: true,
       rowspan: true,
