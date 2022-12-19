@@ -8,8 +8,6 @@ import md_katex from "@traptitech/markdown-it-katex";
 import md_footnote from "markdown-it-footnote";
 import md_page_number from "@comtext/markdown-it-book-page-number";
 
-import { searchProPlugin } from "vuepress-plugin-search-pro";
-
 const workDir = path.dirname(__filename);
 const jsonConfigPath = path.join(workDir, "config.json");
 const json_config = JSON.parse(fs.readFileSync(jsonConfigPath, "utf-8"));
@@ -92,18 +90,6 @@ module.exports = {
       //  katexOptions: { strict: katex_strict_handler },
     });
   },
-
-  plugins: [
-    searchProPlugin({
-      indexContent: true,
-      locales: {
-        "/": {
-          // Override placeholder
-          placeholder: "Start Searching",
-        },
-      },
-    }),
-  ],
 };
 
 // Обработчик вызывается при появлении ошибки при обработке формы KaTeX
