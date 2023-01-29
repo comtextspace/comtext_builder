@@ -13,6 +13,10 @@ call yarn add -D eslint
 call yarn add -D eslint-config-airbnb-base
 call yarn add -D eslint-plugin-import
 
+; for tests
+
+call yarn add -D fs-readdir-recursive
+
 
 pause
 
