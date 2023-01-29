@@ -16,3 +16,4 @@ docs/.vuepress/public/img/png/*.png
 .cache
 *.log
 
+test_sitebuilder/dest
