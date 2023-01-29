@@ -3,6 +3,7 @@ node_modules
 
 .env
 
+docs/**/*.ct
 docs/**/*.md
 docs/**/*.yml
 docs/**/*.yaml
