@@ -1,6 +1,5 @@
 const siteBuilder = require("../src/site_builder.js");
 
 test("buildSite", () => {
-  siteBuilder.build("./test/fixtures/", "./test/dest/");
-  expect(3).toBe(3);
+  siteBuilder.build("./test_sitebuilder/fixtures/", "./test_sitebuilder/dest/");
 });
