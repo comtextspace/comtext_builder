@@ -17,6 +17,7 @@ test("buildSite", () => {
   fs.mkdirSync("./test_sitebuilder/dest/docs/.vuepress");
   fs.mkdirSync("./test_sitebuilder/dest/docs/.vuepress/public");
   fs.mkdirSync("./test_sitebuilder/dest/docs/.vuepress/public/img");
+  fs.mkdirSync("./test_sitebuilder/dest/docs/.vuepress/public/files");
 
   fs.copyFileSync(
     "./test_sitebuilder/source/docs/.vuepress/config.json",

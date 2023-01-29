@@ -7,6 +7,7 @@ const _ = require("lodash");
 let workDir;
 let destImageDir;
 let destMdDir;
+let destFilesDir;
 let vuepressConfigPath;
 
 const IMAGE_DIR = "img";
@@ -64,6 +65,7 @@ const moveBook = (bookConfigFilename) => {
     path.join(bookDir, filename)
   );
   const destBookPath = path.join(destMdDir, bookConfig.filename);
+  const destFilesPath = path.join(destFilesDir, bookConfig.filename);
 
   let bookContent = concatFiles(bookFiles);
 
@@ -77,6 +79,7 @@ const moveBook = (bookConfigFilename) => {
   }
 
   fs.writeFileSync(destBookPath, bookContent);
+  fs.writeFileSync(destFilesPath, bookContent);
 
   const sourceImagesPath = path.join(bookDir, IMAGE_DIR);
   moveFiles(sourceImagesPath, destImageDir);
@@ -114,6 +117,7 @@ const build = (source = "..", dest = ".") => {
 
   destImageDir = path.join(workDir, "docs", ".vuepress", "public", "img");
   destMdDir = path.join(workDir, "docs");
+  destFilesDir = path.join(workDir, "docs", ".vuepress", "public", "files");
   vuepressConfigPath = path.join(workDir, "docs", ".vuepress", "config.json");
 
   config = readConfig();
