@@ -1,22 +1,22 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const YAML = require('yaml');
-const _ = require('lodash');
+const YAML = require("yaml");
+const _ = require("lodash");
 
 let workDir;
 let destImageDir;
 let destMdDir;
 let vuepressConfigPath;
 
-const IMAGE_DIR = 'img';
+const IMAGE_DIR = "img";
 
-const configFilename = 'comtext.yml';
+const configFilename = "comtext.yml";
 
 let sourceDir;
 
 const readYamlFile = (filename) => {
-  const file = fs.readFileSync(filename, 'utf-8');
+  const file = fs.readFileSync(filename, "utf-8");
   return YAML.parse(file);
 };
 
@@ -28,8 +28,10 @@ const readConfig = () => {
 let config;
 
 const concatFiles = (sourceFiles) => {
-  const bookContent = sourceFiles.map((filename) => fs.readFileSync(filename, 'utf-8'));
-  return bookContent.join('');
+  const bookContent = sourceFiles.map((filename) =>
+    fs.readFileSync(filename, "utf-8")
+  );
+  return bookContent.join("");
 };
 
 const moveFiles = (soursePath, destPath) => {
@@ -58,18 +60,20 @@ const moveBook = (bookConfigFilename) => {
   const bookConfig = readYamlFile(path.join(sourceDir, bookConfigFilename));
   const bookDir = path.join(sourceDir, path.dirname(bookConfigFilename));
 
-  const bookFiles = bookConfig.files.map((filename) => path.join(bookDir, filename));
+  const bookFiles = bookConfig.files.map((filename) =>
+    path.join(bookDir, filename)
+  );
   const destBookPath = path.join(destMdDir, bookConfig.filename);
 
   let bookContent = concatFiles(bookFiles);
 
-  if (_.has(bookConfig, 'cover')) {
+  if (_.has(bookConfig, "cover")) {
     const sourceCoverPath = path.join(bookDir, bookConfig.cover);
     const destCoverPath = path.join(destImageDir, bookConfig.cover);
     fs.copyFileSync(sourceCoverPath, destCoverPath);
 
     const coverMdLink = `![](${path.join(IMAGE_DIR, bookConfig.cover)})`;
-    bookContent = bookContent.replace('[[cover]]', coverMdLink);
+    bookContent = bookContent.replace("[[cover]]", coverMdLink);
   }
 
   fs.writeFileSync(destBookPath, bookContent);
@@ -90,25 +94,27 @@ const moveBooks = () => {
 };
 
 const updateVuepressConfig = () => {
-  const vuepressConfig = JSON.parse(fs.readFileSync(vuepressConfigPath, 'utf-8'));
+  const vuepressConfig = JSON.parse(
+    fs.readFileSync(vuepressConfigPath, "utf-8")
+  );
 
-  vuepressConfig.title = _.get(config, 'vuepress.title', '');
-  vuepressConfig.base = _.get(config, 'vuepress.base', '/');
+  vuepressConfig.title = _.get(config, "vuepress.title", "");
+  vuepressConfig.base = _.get(config, "vuepress.base", "/");
 
-  if (_.has(config, 'vuepress.revisionmeProjectId')) {
+  if (_.has(config, "vuepress.revisionmeProjectId")) {
     vuepressConfig.revisionmeProjectId = config.vuepress.revisionmeProjectId;
   }
 
   fs.writeFileSync(vuepressConfigPath, JSON.stringify(vuepressConfig));
 };
 
-const build = (source = '..', dest = '.') => {
+const build = (source = "..", dest = ".") => {
   sourceDir = source;
   workDir = dest;
 
-  destImageDir = path.join(workDir, 'docs', '.vuepress', 'public', 'img');
-  destMdDir = path.join(workDir, 'docs');
-  vuepressConfigPath = path.join(workDir, 'docs', '.vuepress', 'config.json');
+  destImageDir = path.join(workDir, "docs", ".vuepress", "public", "img");
+  destMdDir = path.join(workDir, "docs");
+  vuepressConfigPath = path.join(workDir, "docs", ".vuepress", "config.json");
 
   config = readConfig();
 
