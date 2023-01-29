@@ -65,7 +65,10 @@ const moveBook = (bookConfigFilename) => {
     path.join(bookDir, filename)
   );
   const destBookPath = path.join(destMdDir, bookConfig.filename);
-  const destFilesPath = path.join(destFilesDir, bookConfig.filename);
+  const destFilesPath = path.join(
+    destFilesDir,
+    bookConfig.filename.replace(".md", ".ct")
+  );
 
   let bookContent = concatFiles(bookFiles);
 
