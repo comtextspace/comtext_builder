@@ -1,0 +1,9 @@
+filename: book_first.md
+cover: book_first.jpg
+files:
+  - book_first01.md
+  - book_first02.md
+title: "book"
+author:
+  - Автор
+lang: ru-RU

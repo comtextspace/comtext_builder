@@ -7,4 +7,5 @@ pages:
   - index.md
 
 books:
-  - book/book.yml
+  - book/book_first.yml
+  - book/book_second.yml

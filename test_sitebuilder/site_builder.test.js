@@ -26,7 +26,6 @@ test("buildSite", () => {
   siteBuilder.build("./test_sitebuilder/source/", "./test_sitebuilder/dest/");
 
   const foundFiles = readDir("./test_sitebuilder/dest_correct", () => true);
-  console.log(foundFiles);
 
   foundFiles.forEach((filename) => {
     correctFilename = path.join("./test_sitebuilder/dest_correct", filename);
@@ -35,6 +34,7 @@ test("buildSite", () => {
     correctFile = fs.readFileSync(correctFilename, "utf-8");
     testFile = fs.readFileSync(testFilename, "utf-8");
 
+    console.log(correctFilename);
     expect(testFile).toEqual(correctFile);
   });
 });
