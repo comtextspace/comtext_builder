@@ -11,6 +11,7 @@ function switchPageNumber() {
   showPageNumbers = !showPageNumbers
 
   const pageNumberList = document.querySelectorAll('.book-page-number')
+  const pnButton = document.querySelector('#pn-button')
 
   if (showPageNumbers) {
 
@@ -18,11 +19,15 @@ function switchPageNumber() {
       let pageNumber = pageNumberList[i]
       pageNumber.classList.remove('hide')
     }
+
+    pnButton.classList.remove('bolder')
   } else {
     for (let i = 0; i < pageNumberList.length; i++) {
       let pageNumber = pageNumberList[i]
       pageNumber.classList.add('hide')
     }
+
+    pnButton.classList.add('bolder')
   }
 
 }
@@ -40,7 +45,7 @@ export default {
 <template>
   <ParentLayout>
     <template #navbar-before>
-      <div v-on:click="showPageNumbersButtonClick">PN</div>
+      <div id="pn-button" title="Вкл/выкл отображение номеров страниц." v-on:click="showPageNumbersButtonClick">PN</div>
     </template>
   </ParentLayout>
 </template>
