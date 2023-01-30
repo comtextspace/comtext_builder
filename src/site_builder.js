@@ -4,8 +4,11 @@ const path = require("path");
 const YAML = require("yaml");
 const _ = require("lodash");
 
+const { execSync } = require("child_process");
+
 let workDir;
 let destImageDir;
+let destPublicDir;
 let destMdDir;
 let destFilesDir;
 let vuepressConfigPath;
@@ -65,7 +68,7 @@ const moveBook = (bookConfigFilename) => {
     path.join(bookDir, filename)
   );
   const destBookPath = path.join(destMdDir, bookConfig.filename);
-  const destFilesPath = path.join(
+  const destFilePath = path.join(
     destFilesDir,
     bookConfig.filename.replace(".md", ".ct")
   );
@@ -82,10 +85,23 @@ const moveBook = (bookConfigFilename) => {
   }
 
   fs.writeFileSync(destBookPath, bookContent);
-  fs.writeFileSync(destFilesPath, bookContent);
+  fs.writeFileSync(destFilePath, bookContent);
 
   const sourceImagesPath = path.join(bookDir, IMAGE_DIR);
   moveFiles(sourceImagesPath, destImageDir);
+
+  const fb2FilePath = path.join(
+    destFilesDir,
+    bookConfig.filename.replace(".md", ".fb2")
+  );
+
+  const pandocCommand =
+    `pandoc ${destFilePath} ` +
+    `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
+    `--resource-path=${destPublicDir}`;
+
+  const res = execSync(pandocCommand);
+  console.log(res);
 };
 
 // eslint-disable-next-line consistent-return
@@ -119,6 +135,7 @@ const build = (source = "..", dest = ".") => {
   workDir = dest;
 
   destImageDir = path.join(workDir, "docs", ".vuepress", "public", "img");
+  destPublicDir = path.join(workDir, "docs", ".vuepress", "public");
   destMdDir = path.join(workDir, "docs");
   destFilesDir = path.join(workDir, "docs", ".vuepress", "public", "files");
   vuepressConfigPath = path.join(workDir, "docs", ".vuepress", "config.json");
