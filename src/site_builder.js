@@ -61,6 +61,7 @@ const movePages = () => {
 };
 
 const moveBook = (bookConfigFilename) => {
+  console.log('moveBook: ' + bookConfigFilename)
   const bookConfig = readYamlFile(path.join(sourceDir, bookConfigFilename));
   const bookDir = path.join(sourceDir, path.dirname(bookConfigFilename));
 
@@ -141,10 +142,13 @@ const build = (source = "..", dest = ".") => {
   vuepressConfigPath = path.join(workDir, "docs", ".vuepress", "config.json");
 
   config = readConfig();
-
-  movePages();
-  moveBooks();
-  updateVuepressConfig();
+  try {
+    movePages();
+    moveBooks();
+    updateVuepressConfig();
+  } catch (err) {
+    console.log(err)
+  }
 };
 
 module.exports.build = build;
