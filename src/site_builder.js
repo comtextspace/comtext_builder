@@ -96,13 +96,21 @@ const moveBook = (bookConfigFilename) => {
     bookConfig.filename.replace(".md", ".fb2")
   );
 
-  const pandocCommand =
-    `pandoc ${destFilePath} ` +
-    `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
-    `--resource-path=${destPublicDir}`;
+  if (!_.has(bookConfig, "export")) {
+    return
+  }
 
-  const res = execSync(pandocCommand);
-  console.log(res);
+  if (bookConfig.export.includes('fb2')) {
+    console.log('Export to fb2');
+    
+    const pandocCommand =
+      `pandoc ${destFilePath} ` +
+      `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
+      `--resource-path=${destPublicDir}`;
+
+    const res = execSync(pandocCommand);
+    console.log(res);
+  }
 };
 
 // eslint-disable-next-line consistent-return

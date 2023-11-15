@@ -7,3 +7,5 @@ title: "book"
 author:
   - Автор
 lang: ru-RU
+export:
+  - fb2
