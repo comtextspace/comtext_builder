@@ -35,7 +35,6 @@ test("buildSite", () => {
     correctFile = fs.readFileSync(correctFilename, "utf-8");
     testFile = fs.readFileSync(testFilename, "utf-8");
 
-    console.log(correctFilename);
     expect(testFile).toEqual(correctFile);
   });
 });

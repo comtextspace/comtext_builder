@@ -109,7 +109,8 @@ const moveBook = (bookConfigFilename) => {
       `--resource-path=${destPublicDir}`;
 
     const res = execSync(pandocCommand);
-    console.log(res);
+    console.log(pandocCommand);
+    console.log('' + res);
   }
 };
 
