@@ -1,9 +1,0 @@
-filename: book_second.md
-files:
-  - book_second.md
-title: "Second book"
-author:
-  - Автор
-lang: ru-RU
-export:
-  - fb2

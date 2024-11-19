@@ -60,8 +60,8 @@ const movePages = () => {
   moveFiles(sourceImagesPath, destImageDir);
 };
 
-const moveBook = (bookConfigFilename) => {
-  console.log('moveBook: ' + bookConfigFilename)
+const moveBookFromConfig = (bookConfigFilename) => {
+  console.log('moveBookFromConfig: ' + bookConfigFilename)
   const bookConfig = readYamlFile(path.join(sourceDir, bookConfigFilename));
   const bookDir = path.join(sourceDir, path.dirname(bookConfigFilename));
 
@@ -114,14 +114,75 @@ const moveBook = (bookConfigFilename) => {
   }
 };
 
+const moveBookMd = (bookMdFilename) => {
+  console.log('moveBookMd: ' + bookMdFilename)
+  const bookFilename = path.join(sourceDir, bookMdFilename);
+  const bookDir = path.join(sourceDir, path.dirname(bookMdFilename));
+
+  const destBookPath = path.join(destMdDir, path.basename(bookMdFilename));
+  const destFilePath = path.join(
+    destFilesDir,
+    path.basename(bookMdFilename).replace(".md", ".ct")
+  );
+
+  let bookContent = concatFiles([bookFilename]);
+  
+  // TODO переделать чтобы cover был в yaml metadata
+  // сейчас md файлы будут работать только без обложки
+  // if (_.has(bookConfig, "cover")) {
+  //   const sourceCoverPath = path.join(bookDir, bookConfig.cover);
+  //   const destCoverPath = path.join(destImageDir, bookConfig.cover);
+  //   fs.copyFileSync(sourceCoverPath, destCoverPath);
+
+  //   const coverMdLink = `![](${path.join(IMAGE_DIR, bookConfig.cover)})`;
+  //   bookContent = bookContent.replace("[[cover]]", coverMdLink);
+  // }
+
+  fs.writeFileSync(destBookPath, bookContent);
+  fs.writeFileSync(destFilePath, bookContent);
+
+  const sourceImagesPath = path.join(bookDir, IMAGE_DIR);
+  moveFiles(sourceImagesPath, destImageDir);
+
+  const fb2FilePath = path.join(
+    destFilesDir,
+    path.basename(bookMdFilename).replace(".md", ".fb2")
+  );
+
+  // TODO возможно, нужна возможность отключать экспорт
+  // как сделано для yaml конфига
+  // if (!_.has(bookConfig, "export")) {
+  //   return
+  // }
+
+  console.log('Export to fb2');
+    
+  const pandocCommand =
+    `pandoc ${destFilePath} ` +
+    `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
+    `--resource-path=${destPublicDir}`;
+
+  const res = execSync(pandocCommand);
+  console.log(pandocCommand);
+  console.log('' + res);
+};
+
 // eslint-disable-next-line consistent-return
 const moveBooks = () => {
   if (config.books === null) {
     return null;
   }
 
-  config.books.forEach((bookConfigFilename) => {
-    moveBook(bookConfigFilename);
+  config.books.forEach((bookFilename) => {
+    const ext = path.extname(bookFilename)
+
+    if (ext == '.yml') {
+      moveBookFromConfig(bookFilename);
+    } else if (ext == '.md') {
+      moveBookMd(bookFilename);
+    } else {
+      throw new Error(`Неизвестное расширение файла книги "${bookFilename}"`); 
+    }
   });
 };
 

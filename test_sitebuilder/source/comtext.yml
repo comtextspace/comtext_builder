@@ -8,4 +8,4 @@ pages:
 
 books:
   - book/book_first.yml
-  - book/book_second.yml
+  - book/book_second.md
