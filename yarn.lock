@@ -295,6 +295,11 @@
   resolved "https://registry.yarnpkg.com/@comtext/markdown-it-book-page-number/-/markdown-it-book-page-number-0.3.0.tgz#8f70f1bad1f96edea0e7fb00bce381fc7ff05fd7"
   integrity sha512-LReexQAlI2CJePAG0uDeJ2YBFRURiHzSWj6Vp2Ir61Urm/2nA0eLn/8hhi25Qa0XmJXs1iF7IipLtxgN2K7puA==
 
+"@comtext/markdown-it-underline@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@comtext/markdown-it-underline/-/markdown-it-underline-0.1.0.tgz#b6549e90e338403bbf2270bde7599fa1dd9e4c33"
+  integrity sha512-lAH5UxZOHuANPx8mWiqszDiDKYC8U0ru78TV1WFOKLmyTY1MK8xhX8W9Ux6pLPBR2Rhc/38zH/ITb38DCkV3WA==
+
 "@esbuild/android-arm64@0.16.9":
   version "0.16.9"
   resolved "https://registry.yarnpkg.com/@esbuild/android-arm64/-/android-arm64-0.16.9.tgz#474da719599f99d820ec010c92846a4f685fa28a"
