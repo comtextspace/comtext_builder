@@ -7,6 +7,7 @@
   "license": "MIT",
   "devDependencies": {
     "@comtext/markdown-it-book-page-number": "^0.3.0",
+    "@comtext/markdown-it-razradka": "^0.2.0",
     "@comtext/markdown-it-underline": "^0.1.0",
     "@mdit/plugin-figure": "^0.13.1",
     "@traptitech/markdown-it-katex": "^3.6.0",

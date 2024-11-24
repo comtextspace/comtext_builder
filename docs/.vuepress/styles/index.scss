@@ -9,6 +9,10 @@
     width: 50%;
 }
 
+figure > figcaption {
+    text-align: center;
+}
+
 .hide {
     display: none;
 }
@@ -20,7 +24,7 @@
 .md-it-underline {
     text-decoration: underline;
   }
-  
-figure > figcaption {
-  text-align: center;
+
+.md-it-underline {
+    letter-spacing: 0.4em;
 }
