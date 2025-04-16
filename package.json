@@ -1,9 +1,9 @@
 {
-  "name": "chernishevskiy_builder",
+  "name": "comtext_builder",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "https://github.com/ZaryaXYZ/chernishevskiy_builder.git",
-  "author": "KonstantinSh <Kverde@yandex.ru>",
+  "repository": "https://github.com/comtextspace/comtext_builder.git",
+  "author": "comtextspace <comtextspace@comtextspace.ru>",
   "license": "MIT",
   "devDependencies": {
     "@comtext/markdown-it-book-page-number": "^0.3.0",
@@ -12,8 +12,10 @@
     "@mdit/plugin-figure": "^0.13.1",
     "@traptitech/markdown-it-katex": "^3.6.0",
     "@vue/component-compiler-utils": "^3.2.0",
+    "@vuepress/bundler-vite": "^2.0.0-rc.21",
     "@vuepress/plugin-search": "^1.9.7",
     "@vuepress/shared-utils": "^1.9.7",
+    "@vuepress/theme-default": "^2.0.0-rc.96",
     "eslint": "^8.28.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
@@ -21,7 +23,8 @@
     "jest": "^27.2.4",
     "markdown-it-footnote": "^3.0.3",
     "markdown-it-multimd-table": "^4.1.1",
-    "vuepress-webpack": "^2.0.0-beta.59"
+    "sass-embedded": "^1.86.3",
+    "vuepress": "^2.0.0-rc.21"
   },
   "scripts": {
     "docs:dev": "vuepress dev docs --clean-cache",

@@ -1,7 +1,9 @@
 import fs from "fs";
 import path from "path";
 
-import { defaultTheme } from "@vuepress/theme-default";
+import { defaultTheme } from '@vuepress/theme-default';
+import { viteBundler } from '@vuepress/bundler-vite';
+import { defineUserConfig } from 'vuepress';
 
 import md_table from "markdown-it-multimd-table";
 import md_katex from "@traptitech/markdown-it-katex";
@@ -49,7 +51,11 @@ const makeRevisionmeHeader = (config) => {
 
 const revisionmeHeader = makeRevisionmeHeader(json_config);
 
-module.exports = {
+export default {
+  bundler: viteBundler({
+    viteOptions: {},
+    vuePluginOptions: {},
+  }),
   lang: "ru-RU",
   title: json_config.title,
   base: json_config.base,
