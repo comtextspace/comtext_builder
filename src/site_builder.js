@@ -106,7 +106,8 @@ const moveBookFromConfig = (bookConfigFilename) => {
     const pandocCommand =
       `pandoc ${destFilePath} ` +
       `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
-      `--resource-path=${destPublicDir}`;
+      `--resource-path=${destPublicDir} ` +
+      `--lua-filter=src/pandoc/filter.lua`;
 
     const res = execSync(pandocCommand);
     console.log(pandocCommand);
@@ -160,7 +161,8 @@ const moveBookMd = (bookMdFilename) => {
   const pandocCommand =
     `pandoc ${destFilePath} ` +
     `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
-    `--resource-path=${destPublicDir}`;
+    `--resource-path=${destPublicDir} ` +
+    `--lua-filter=src/pandoc/filter.lua`;
 
   const res = execSync(pandocCommand);
   console.log(pandocCommand);

@@ -32,6 +32,9 @@ test("buildSite", () => {
     correctFilename = path.join("./test_sitebuilder/dest_correct", filename);
     testFilename = path.join("./test_sitebuilder/dest", filename);
 
+    // console.log('correct ' + correctFilename);
+    // console.log('test ' + testFilename);
+
     correctFile = fs.readFileSync(correctFilename, "utf-8");
     testFile = fs.readFileSync(testFilename, "utf-8");
 
