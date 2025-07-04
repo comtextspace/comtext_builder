@@ -14,6 +14,7 @@ let destFilesDir;
 let vuepressConfigPath;
 
 const IMAGE_DIR = "img";
+const FILE_DIR = "files";
 
 const configFilename = "comtext.yml";
 
@@ -128,13 +129,6 @@ const moveBookMd = (bookMdFilename) => {
 
   let bookContent = concatFiles([bookFilename]);
   
-  // TODO переделать чтобы cover был в yaml metadata
-  // сейчас md файлы будут работать только без обложки
-  // if (_.has(bookConfig, "cover")) {
-  //   const coverMdLink = `![](${path.join(IMAGE_DIR, bookConfig.cover)})`;
-  //   bookContent = bookContent.replace("[[cover]]", coverMdLink);
-  // }
-
   fs.writeFileSync(destBookPath, bookContent);
   fs.writeFileSync(destFilePath, bookContent);
 
@@ -211,6 +205,10 @@ const build = (source = "..", dest = ".") => {
 
   config = readConfig();
   try {
+    // перемещение файлов
+    const sourceFilesPath = path.join(sourceDir, FILE_DIR);
+    moveFiles(sourceFilesPath, destFilesDir);    
+    
     movePages();
     moveBooks();
     updateVuepressConfig();
