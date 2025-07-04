@@ -9,3 +9,4 @@ pages:
 books:
   - book/book_first.yml
   - book/book_second.md
+  - book/book_third.md

@@ -131,10 +131,6 @@ const moveBookMd = (bookMdFilename) => {
   // TODO переделать чтобы cover был в yaml metadata
   // сейчас md файлы будут работать только без обложки
   // if (_.has(bookConfig, "cover")) {
-  //   const sourceCoverPath = path.join(bookDir, bookConfig.cover);
-  //   const destCoverPath = path.join(destImageDir, bookConfig.cover);
-  //   fs.copyFileSync(sourceCoverPath, destCoverPath);
-
   //   const coverMdLink = `![](${path.join(IMAGE_DIR, bookConfig.cover)})`;
   //   bookContent = bookContent.replace("[[cover]]", coverMdLink);
   // }
