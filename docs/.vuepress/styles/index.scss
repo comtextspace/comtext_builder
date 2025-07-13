@@ -1,14 +1,14 @@
-.theme-default-content p {
-    text-align: justify;
-}
+// .theme-default-content p {
+//     text-align: justify;
+// }
 
-.theme-default-content figure img {
+.vp-page figure img {
     display: block;
     margin-left: auto;
     margin-right: auto;
 }
 
-figure > figcaption {
+.vp-page figure > figcaption {
     text-align: center;
 }
 
@@ -29,10 +29,10 @@ figure > figcaption {
     margin-right: -0.4em;
 }
 
-.vp-theme-container a {
-  text-decoration: none !important; 
-}
+// .vp-theme-container a {
+//   text-decoration: none !important; 
+// }
 
-.vp-theme-container a:hover {
-  text-decoration: underline !important;
-}
+// .vp-theme-container a:hover {
+//   text-decoration: underline !important;
+// }
