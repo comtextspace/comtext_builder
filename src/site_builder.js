@@ -152,12 +152,19 @@ const moveBookMd = (bookMdFilename) => {
     `pandoc ${destFilePath} ` +
     `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
     `--resource-path=${destPublicDir} ` +
+    `--section-divs=false ` +
     `--lua-filter=src/pandoc/remove_toc.lua ` +
     `--lua-filter=src/pandoc/filter.lua`;
 
   const res = execSync(pandocCommand);
   console.log(pandocCommand);
   console.log('' + res);
+
+  const sedCommand = `sed '0,/<title><p>[^<]*<\\/p><\\/title>/s///' "${fb2FilePath}" > "${fb2FilePath}.tmp" && mv "${fb2FilePath}.tmp" "${fb2FilePath}"`;
+
+  const res2 = execSync(sedCommand);
+  console.log(sedCommand);
+  console.log('' + res2);
 };
 
 // eslint-disable-next-line consistent-return
