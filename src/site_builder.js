@@ -152,7 +152,6 @@ const moveBookMd = (bookMdFilename) => {
     `pandoc ${destFilePath} ` +
     `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
     `--resource-path=${destPublicDir} ` +
-    `--section-divs=false ` +
     `--lua-filter=src/pandoc/remove_toc.lua ` +
     `--lua-filter=src/pandoc/filter.lua`;
 
