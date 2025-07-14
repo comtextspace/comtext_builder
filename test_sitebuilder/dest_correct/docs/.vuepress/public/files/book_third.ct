@@ -9,6 +9,8 @@ cover-image: img/book_third.png
 
 ![cover](/img/book_third.png)
 
+[[TOC]]
+
 Текст третьей книги
 
 ![](/img/book_second01.png)
