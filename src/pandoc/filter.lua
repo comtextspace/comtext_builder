@@ -8,6 +8,6 @@ function Image(el)
   end
 
   -- Убираем начальный слэш у src
-  el.src = el.src:sub(2)
+  -- el.src = el.src:sub(2)
   return el
 end

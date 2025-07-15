@@ -29,15 +29,25 @@ test("buildSite", () => {
   const foundFiles = readDir("./test_sitebuilder/dest_correct", () => true);
 
   foundFiles.forEach((filename) => {
-    correctFilename = path.join("./test_sitebuilder/dest_correct", filename);
-    testFilename = path.join("./test_sitebuilder/dest", filename);
-
+    const correctFilename = path.join("./test_sitebuilder/dest_correct", filename);
+    const testFilename = path.join("./test_sitebuilder/dest", filename);
+  
     // console.log('correct ' + correctFilename);
     // console.log('test ' + testFilename);
 
-    correctFile = fs.readFileSync(correctFilename, "utf-8");
-    testFile = fs.readFileSync(testFilename, "utf-8");
-
+    let correctFile, testFile;
+  
+    // Проверяем, это ZIP-файл или нет
+    if (filename.toLowerCase().endsWith(".zip")) {
+      // Читаем как Buffer (без кодировки)
+      correctFile = fs.readFileSync(correctFilename);
+      testFile = fs.readFileSync(testFilename);
+    } else {
+      // Читаем как текст в кодировке UTF-8
+      correctFile = fs.readFileSync(correctFilename, "utf-8");
+      testFile = fs.readFileSync(testFilename, "utf-8");
+    }
+  
     expect(testFile).toEqual(correctFile);
   });
 });

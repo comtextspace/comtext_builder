@@ -13,4 +13,4 @@ cover-image: img/book_third.png
 
 Текст третьей книги
 
-![](/img/book_second01.png)
+![](/img/book_third-01.png)
