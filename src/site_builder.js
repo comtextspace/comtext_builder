@@ -241,6 +241,10 @@ const updateVuepressConfig = () => {
   vuepressConfig.title = _.get(config, "vuepress.title", "");
   vuepressConfig.base = _.get(config, "vuepress.base", "/");
 
+  if (_.has(config, "vuepress.markdown_toc_level")) {
+    vuepressConfig.markdown_toc_level = _.get(config, "vuepress.markdown_toc_level");
+  }
+
   if (_.has(config, "vuepress.revisionmeProjectId")) {
     vuepressConfig.revisionmeProjectId = config.vuepress.revisionmeProjectId;
   }
