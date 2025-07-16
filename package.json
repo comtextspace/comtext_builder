@@ -11,11 +11,8 @@
     "@comtext/markdown-it-underline": "^0.1.0",
     "@mdit/plugin-figure": "^0.13.1",
     "@traptitech/markdown-it-katex": "^3.6.0",
-    "@vue/component-compiler-utils": "^3.2.0",
-    "@vuepress/bundler-vite": "^2.0.0-rc.21",
-    "@vuepress/plugin-search": "^1.9.7",
-    "@vuepress/shared-utils": "^1.9.7",
-    "@vuepress/theme-default": "^2.0.0-rc.96",
+    "@vuepress/bundler-vite": "^2.0.0-rc.24",
+    "@vuepress/theme-default": "^2.0.0-rc.112",
     "eslint": "^8.28.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
@@ -24,7 +21,7 @@
     "markdown-it-footnote": "^3.0.3",
     "markdown-it-multimd-table": "^4.1.1",
     "sass-embedded": "^1.86.3",
-    "vuepress": "^2.0.0-rc.21"
+    "vuepress": "^2.0.0-rc.24"
   },
   "scripts": {
     "docs:dev": "vuepress dev docs --clean-cache",
