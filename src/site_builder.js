@@ -142,45 +142,7 @@ const moveBookMd = (bookMdFilename) => {
   const bookContentComtext = bookContent.replaceAll('](/img/', '](img/');
   fs.writeFileSync(destCtFilePath, bookContentComtext);
   
-  // ZIP --------------------------------
-  // Создаем новый ZIP-архив
-  const zip = new AdmZip();
-
-  // Добавляем файл в архив, сохраняя только имя файла (без полного пути)
-  const fileNameInZip = path.basename(destCtFilePath);
-
-  // Добавляем файл в архив с указанием имени внутри архива
-  zip.addLocalFile(destCtFilePath, null, fileNameInZip, zipFileDate);
-
-  const files = fs.readdirSync(destImageDir);
-  const baseName = path.basename(destCtFilePath, path.extname(destCtFilePath));
-
-  // Фильтруем файлы, оставляя только те, которые начинаются с baseName и имеют графическое расширение
-  imageFiles = files.filter(file => {
-    const ext = path.extname(file).toLowerCase();
-    return file.startsWith(baseName) && ['.png', '.jpg', '.jpeg', '.gif'].includes(ext);
-  });
-
-// Добавляем каждое изображение в подкаталог img архива
-imageFiles.forEach(file => {
-  const fullPath = path.join(destImageDir, file);
-  const fileStat = fs.statSync(fullPath);
-
-  if (fileStat.isFile()) {
-    const zipEntry = zip.addLocalFile(fullPath, "img", null, zipFileDate); // <-- здесь указываем папку внутри архива
-
-    console.log(`Добавлено в архив: img/${file}`);
-  }
-});
-
-for (const entry of zip.getEntries()) {
-  entry.header.time = zipFileDate;
-}
-
-  // Сохраняем архив
-  zip.writeZip(destCtZipFilePath);
-
-  // END ZIP ------------
+  zipFiles(destCtZipFilePath, destCtFilePath, destImageDir);
 
   const sourceImagesPath = path.join(bookDir, IMAGE_DIR);
   moveFiles(sourceImagesPath, destImageDir);
@@ -213,6 +175,47 @@ for (const entry of zip.getEntries()) {
 
   const res2 = execSync(sedCommand);
 };
+
+
+const zipFiles = (zipFilePath, filePath, imageDir) => { 
+  // ZIP --------------------------------
+  // Создаем новый ZIP-архив
+  const zip = new AdmZip();
+
+  // Добавляем файл в архив, сохраняя только имя файла (без полного пути)
+  const fileNameInZip = path.basename(filePath);
+
+  // Добавляем файл в архив с указанием имени внутри архива
+  zip.addLocalFile(filePath, null, fileNameInZip, zipFileDate);
+
+  const files = fs.readdirSync(imageDir);
+  const baseName = path.basename(filePath, path.extname(filePath));
+
+  // Фильтруем файлы, оставляя только те, которые начинаются с baseName и имеют графическое расширение
+  imageFiles = files.filter(file => {
+    const ext = path.extname(file).toLowerCase();
+    return file.startsWith(baseName) && ['.png', '.jpg', '.jpeg', '.gif'].includes(ext);
+  });
+
+  // Добавляем каждое изображение в подкаталог img архива
+  imageFiles.forEach(file => {
+    const fullPath = path.join(imageDir, file);
+    const fileStat = fs.statSync(fullPath);
+
+  if (fileStat.isFile()) {
+    const zipEntry = zip.addLocalFile(fullPath, "img", null, zipFileDate); // <-- здесь указываем папку внутри архива
+
+    console.log(`Добавлено в архив: img/${file}`);
+  }
+});
+
+for (const entry of zip.getEntries()) {
+  entry.header.time = zipFileDate;
+}
+
+  // Сохраняем архив
+  zip.writeZip(zipFilePath);
+}
 
 // eslint-disable-next-line consistent-return
 const moveBooks = () => {
