@@ -122,18 +122,30 @@ const moveBookFromConfig = (bookConfigFilename) => {
   }
 };
 
+function changeFileExtension(filePath, newExtension) {
+  const dir = path.dirname(filePath);          // Получаем директорию
+  const filename = path.basename(filePath);    // Имя файла с текущим расширением
+  const name = path.parse(filename).name;      // Имя без расширения
+  return path.join(dir, name + newExtension);  // Собираем новый путь
+}
+
 const moveBookMd = (bookMdFilename) => {
-  console.log('moveBookMd: ' + bookMdFilename)
+  console.log('moveBookMd: ' + bookMdFilename);
+
   const bookFilename = path.join(sourceDir, bookMdFilename);
   const bookDir = path.join(sourceDir, path.dirname(bookMdFilename));
+  const bookBasename = path.basename(bookMdFilename);
+  const sourceImagesPath = path.join(bookDir, IMAGE_DIR);
 
-  const destBookPath = path.join(destMdDir, path.basename(bookMdFilename));
-  const destCtFilePath = path.join(
-    destFilesDir,
-    path.basename(bookMdFilename).replace(".md", ".ct")
+  const destBookPath = path.join(destMdDir, bookBasename);
+
+
+  const destCtFilePath = path.join(destFilesDir, 
+    changeFileExtension(bookBasename, ".ct")
   );
-
+  
   const destCtZipFilePath = destCtFilePath + '.zip';
+
 
   let bookContent = concatFiles([bookFilename]);
   
@@ -141,16 +153,13 @@ const moveBookMd = (bookMdFilename) => {
 
   const bookContentComtext = bookContent.replaceAll('](/img/', '](img/');
   fs.writeFileSync(destCtFilePath, bookContentComtext);
-  
-  zipFiles(destCtZipFilePath, destCtFilePath, destImageDir);
 
-  const sourceImagesPath = path.join(bookDir, IMAGE_DIR);
   moveFiles(sourceImagesPath, destImageDir);
-
-  const fb2FilePath = path.join(
-    destFilesDir,
-    path.basename(bookMdFilename).replace(".md", ".fb2")
-  );
+  
+  console.log('Zip files');
+  const zipTimer = startTimer();
+  zipFiles(destCtZipFilePath, destCtFilePath, destImageDir);
+  endTimer(zipTimer);
 
   // TODO возможно, нужна возможность отключать экспорт
   // как сделано для yaml конфига
@@ -159,23 +168,26 @@ const moveBookMd = (bookMdFilename) => {
   // }
 
   console.log('Export to fb2');
-    
-  const pandocCommand =
-    `pandoc ${destCtFilePath} ` +
-    `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
-    `--resource-path=${destPublicDir} ` +
-    `--lua-filter=src/pandoc/remove_toc.lua ` +
-    `--lua-filter=src/pandoc/filter.lua`;
 
-  const res = execSync(pandocCommand);
-  console.log(pandocCommand);
-  console.log('' + res);
-
-  const sedCommand = `sed '0,/<title><p>[^<]*<\\/p><\\/title>/s///' "${fb2FilePath}" > "${fb2FilePath}.tmp" && mv "${fb2FilePath}.tmp" "${fb2FilePath}"`;
-
-  const res2 = execSync(sedCommand);
+  const fb2FilePath = path.join(destFilesDir, 
+    changeFileExtension(bookBasename, ".fb2")
+  );  
+  
+  const fb2Timer = startTimer();
+  exportFb2(destCtFilePath, fb2FilePath, destPublicDir);
+  endTimer(fb2Timer);
 };
 
+// Функция для запуска таймера
+function startTimer() {
+  return Date.now();
+}
+
+// Функция для завершения таймера и вывода результата
+function endTimer(start) {
+  const end = Date.now();
+  console.log(`Операция заняла ${end - start} мс`);
+}
 
 const zipFiles = (zipFilePath, filePath, imageDir) => { 
   // ZIP --------------------------------
@@ -205,7 +217,7 @@ const zipFiles = (zipFilePath, filePath, imageDir) => {
   if (fileStat.isFile()) {
     const zipEntry = zip.addLocalFile(fullPath, "img", null, zipFileDate); // <-- здесь указываем папку внутри архива
 
-    console.log(`Добавлено в архив: img/${file}`);
+    // console.log(`Добавлено в архив: img/${file}`);
   }
 });
 
@@ -215,6 +227,23 @@ for (const entry of zip.getEntries()) {
 
   // Сохраняем архив
   zip.writeZip(zipFilePath);
+}
+
+function exportFb2(ctFilePath, fb2FilePath, resourcePath) {
+  const pandocCommand =
+    `pandoc ${ctFilePath} ` +
+    `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
+    `--resource-path=${resourcePath} ` +
+    `--lua-filter=src/pandoc/remove_toc.lua ` +
+    `--lua-filter=src/pandoc/filter.lua`;
+
+  const res = execSync(pandocCommand);
+  // console.log(pandocCommand);
+  // console.log('' + res);
+
+  const sedCommand = `sed '0,/<title><p>[^<]*<\\/p><\\/title>/s///' "${fb2FilePath}" > "${fb2FilePath}.tmp" && mv "${fb2FilePath}.tmp" "${fb2FilePath}"`;
+
+  const res2 = execSync(sedCommand);
 }
 
 // eslint-disable-next-line consistent-return
