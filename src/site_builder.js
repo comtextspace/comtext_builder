@@ -133,6 +133,33 @@ function changeFileExtension(filePath, newExtension) {
   return path.join(dir, name + newExtension);  // Собираем новый путь
 }
 
+/**
+ * Устанавливает одинаковую дату для всех файлов в epub-архиве.
+ *
+ * @param {string} epubPath - Полный путь к epub-файлу
+ * @param {Date} [fixedDate] - Дата, которую нужно установить (по умолчанию: 2000-01-01T00:00:00.000Z)
+ */
+function normalizeEpubTimestamps(epubPath, fixedDate = new Date("2000-01-01T00:00:00.000Z")) {
+  if (!fs.existsSync(epubPath)) {
+    throw new Error(`Файл не найден: ${epubPath}`);
+  }
+
+  const zip = new AdmZip(epubPath);
+
+  const zipEntries = zip.getEntries();
+
+  for (const entry of zipEntries) {
+    // Устанавливаем фиксированную дату
+    entry.header.time = fixedDate;
+  }
+
+  // Сохраняем архив поверх оригинала (или можно указать другой путь)
+  const buffer = zip.toBuffer();
+  fs.writeFileSync(epubPath, buffer);
+
+  console.log(`Все временные метки в ${epubPath} обновлены на ${fixedDate.toISOString()}`);
+}
+
 const moveBookMd = (bookMdFilename) => {
   console.log('moveBookMd: ' + bookMdFilename);
 
@@ -269,18 +296,25 @@ function exportFb2(ctFilePath, fb2FilePath, resourcePath) {
 
 function exportEpub(ctFilePath, epubFilePath, resourcePath) {
   const pandocCommand =
-    `pandoc ${ctFilePath} ` +
-    `-s -f markdown -t epub3 -o ${epubFilePath} ` +
-    `--resource-path=${resourcePath} ` +
-    `--toc ` +
-    `--standalone ` +
-    `--shift-heading-level-by=-1 ` +
-    `--toc-depth=3 ` +
-    `--top-level-division=chapter ` +
-    `--lua-filter=src/pandoc/remove_toc.lua ` +
-    `--lua-filter=src/pandoc/filter.lua`;
+  `pandoc ${ctFilePath} ` +
+  `-s -f markdown -t epub3 -o ${epubFilePath} ` +
+  `--resource-path=${resourcePath} ` +
+  `--toc ` +
+  `--standalone ` +
+  `--shift-heading-level-by=-1 ` +
+  `--toc-depth=3 ` +
+  `--gladtex ` +
+  `--top-level-division=chapter ` +
+  `--lua-filter=src/pandoc/remove_toc.lua ` +
+  `--lua-filter=src/pandoc/filter.lua`;
 
-  const res = execSync(pandocCommand);
+  execSync(pandocCommand);
+
+  // Нужно чтобы работали тесты для epub. 
+  // Но они всё равно не работают так как 
+  // внутри генерируются случайные uud
+  // normalizeEpubTimestamps(epubFilePath);
+
   // console.log(pandocCommand);
   // console.log('' + res);
 }

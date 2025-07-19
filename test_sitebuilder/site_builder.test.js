@@ -38,7 +38,8 @@ test("buildSite", () => {
     let correctFile, testFile;
   
     // Проверяем, это ZIP-файл или нет
-    if (filename.toLowerCase().endsWith(".zip")) {
+    if (filename.toLowerCase().endsWith(".zip") 
+      || filename.toLowerCase().endsWith(".epub")) {
       // Читаем как Buffer (без кодировки)
       correctFile = fs.readFileSync(correctFilename);
       testFile = fs.readFileSync(testFilename);
