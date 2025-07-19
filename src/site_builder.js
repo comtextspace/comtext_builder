@@ -162,6 +162,9 @@ const moveBookMd = (bookMdFilename) => {
 
   // Нужно из-за того, что cover-image при конвертации
   // через pandoc 3.7.1 в epub не работает с --resource-path
+  if (!fs.existsSync('./img/')) {
+    fs.mkdirSync('./img/');
+  }
   moveFiles(sourceImagesPath, './img/'); 
   
   console.log('Zip files');
