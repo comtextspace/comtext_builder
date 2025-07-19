@@ -43,11 +43,15 @@ const concatFiles = (sourceFiles) => {
   return bookContent.join("");
 };
 
-const moveFiles = (soursePath, destPath) => {
-  if (fs.existsSync(soursePath)) {
-    const images = fs.readdirSync(soursePath);
+const moveFiles = (sourcePath, destPath) => {
+  // console.log('moveFiles ' + sourcePath + ' ' + destPath);
+
+  if (fs.existsSync(sourcePath)) {
+    const images = fs.readdirSync(sourcePath);
     images.forEach((imageFilename) => {
-      const sourceImg = path.join(soursePath, imageFilename);
+      // console.log(imageFilename);
+      
+      const sourceImg = path.join(sourcePath, imageFilename);
       const destImg = path.join(destPath, imageFilename);
       fs.copyFileSync(sourceImg, destImg);
     });
@@ -155,6 +159,10 @@ const moveBookMd = (bookMdFilename) => {
   fs.writeFileSync(destCtFilePath, bookContentComtext);
 
   moveFiles(sourceImagesPath, destImageDir);
+
+  // Нужно из-за того, что cover-image при конвертации
+  // через pandoc 3.7.1 в epub не работает с --resource-path
+  moveFiles(sourceImagesPath, './img/'); 
   
   console.log('Zip files');
   const zipTimer = startTimer();
@@ -171,11 +179,21 @@ const moveBookMd = (bookMdFilename) => {
 
   const fb2FilePath = path.join(destFilesDir, 
     changeFileExtension(bookBasename, ".fb2")
-  );  
+  );
   
   const fb2Timer = startTimer();
   exportFb2(destCtFilePath, fb2FilePath, destPublicDir);
   endTimer(fb2Timer);
+
+  console.log('Export to epub');
+
+  const epubFilePath = path.join(destFilesDir, 
+    changeFileExtension(bookBasename, ".epub")
+  );  
+  
+  const epubTimer = startTimer();
+  exportEpub(destCtFilePath, epubFilePath, destPublicDir);
+  endTimer(epubTimer);    
 };
 
 // Функция для запуска таймера
@@ -244,6 +262,24 @@ function exportFb2(ctFilePath, fb2FilePath, resourcePath) {
   const sedCommand = `sed '0,/<title><p>[^<]*<\\/p><\\/title>/s///' "${fb2FilePath}" > "${fb2FilePath}.tmp" && mv "${fb2FilePath}.tmp" "${fb2FilePath}"`;
 
   const res2 = execSync(sedCommand);
+}
+
+function exportEpub(ctFilePath, epubFilePath, resourcePath) {
+  const pandocCommand =
+    `pandoc ${ctFilePath} ` +
+    `-s -f markdown -t epub3 -o ${epubFilePath} ` +
+    `--resource-path=${resourcePath} ` +
+    `--toc ` +
+    `--standalone ` +
+    `--shift-heading-level-by=-1 ` +
+    `--toc-depth=3 ` +
+    `--top-level-division=chapter ` +
+    `--lua-filter=src/pandoc/remove_toc.lua ` +
+    `--lua-filter=src/pandoc/filter.lua`;
+
+  const res = execSync(pandocCommand);
+  // console.log(pandocCommand);
+  // console.log('' + res);
 }
 
 // eslint-disable-next-line consistent-return
