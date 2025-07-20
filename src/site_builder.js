@@ -373,8 +373,6 @@ const build = (source = "..", dest = ".") => {
     const sourceFilesPath = path.join(sourceDir, FILE_DIR);
     moveFiles(sourceFilesPath, destFilesDir);   
     
-    throw 'Test exception';
-    
     movePages();
     moveBooks();
     updateVuepressConfig();
