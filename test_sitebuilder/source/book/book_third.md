@@ -3,6 +3,7 @@ title: Третья книга
 author:
 - Петров Марк Анатольевич
 cover-image: img/book_third.png
+lang: ru-RU
 ---
 
 # Третья книга
