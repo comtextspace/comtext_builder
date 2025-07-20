@@ -371,13 +371,16 @@ const build = (source = "..", dest = ".") => {
   try {
     // перемещение файлов
     const sourceFilesPath = path.join(sourceDir, FILE_DIR);
-    moveFiles(sourceFilesPath, destFilesDir);    
+    moveFiles(sourceFilesPath, destFilesDir);   
+    
+    throw 'Test exception';
     
     movePages();
     moveBooks();
     updateVuepressConfig();
   } catch (err) {
-    console.log(err)
+    console.log(err);
+    // process.exit(1);
   }
 };
 
