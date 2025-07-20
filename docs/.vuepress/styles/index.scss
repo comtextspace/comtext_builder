@@ -36,3 +36,7 @@
 .vp-page a:hover {
   text-decoration: underline !important;
 }
+
+.vp-page blockquote p:not(:last-child) {
+  margin-bottom: 15px;
+}
