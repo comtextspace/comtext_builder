@@ -8,6 +8,9 @@ const AdmZip = require("adm-zip");
 
 const { execSync } = require("child_process");
 
+const { isRunningInGitHubActions } = require("./utils.js");
+const { tryRestoreFileFromCache, saveFileToCache } = require("./cache.js");
+
 let workDir;
 let destImageDir;
 let destPublicDir;
@@ -135,7 +138,7 @@ function changeFileExtension(filePath, newExtension) {
   return path.join(dir, name + newExtension);  // Собираем новый путь
 }
 
-const moveBookMd = (bookMdFilename) => {
+const moveBookMd = async (bookMdFilename) => {
   console.log("moveBookMd: " + bookMdFilename);
 
   const bookFilename = path.join(sourceDir, bookMdFilename);
@@ -180,6 +183,8 @@ const moveBookMd = (bookMdFilename) => {
   //   return
   // }
 
+  const cacheId = config.vuepress.cacheId;
+
   console.log("Export to fb2");
 
   const fb2FilePath = path.join(destFilesDir, 
@@ -187,7 +192,22 @@ const moveBookMd = (bookMdFilename) => {
   );
   
   const fb2Timer = startTimer();
-  exportFb2(destCtFilePath, fb2FilePath, destPublicDir);
+
+  let loadedFromCache = false;
+  const fb2Hash = `fb2-${bookMdFilename}-${cacheId}`;
+
+  if (isRunningInGitHubActions()) {
+    loadedFromCache = await tryRestoreFileFromCache(fb2Hash, destCtFilePath, fb2FilePath);
+  }
+
+  if (!loadedFromCache) {
+    exportFb2(destCtFilePath, fb2FilePath, destPublicDir);
+
+    if (isRunningInGitHubActions()) {
+      saveFileToCache(fb2Hash, destCtFilePath, fb2FilePath);
+    }
+  }
+  
   endTimer(fb2Timer);
 
   console.log("Export to epub");
@@ -197,7 +217,13 @@ const moveBookMd = (bookMdFilename) => {
   );  
   
   const epubTimer = startTimer();
+
+  if (isRunningInGitHubActions()) {
+    console.log('isRunningInGitHubActions');
+  }
+
   exportEpub(destCtFilePath, epubFilePath, destPublicDir);
+
   endTimer(epubTimer);    
 };
 
@@ -298,22 +324,21 @@ function exportEpub(ctFilePath, epubFilePath, resourcePath) {
 }
 
  
-const moveBooks = () => {
+const moveBooks = async () => {
   if (config.books === null) {
     return null;
   }
-
-  config.books.forEach((bookFilename) => {
+  for (const bookFilename of config.books) {
     const ext = path.extname(bookFilename);
 
     if (ext == ".yml") {
       moveBookFromConfig(bookFilename);
     } else if (ext == ".md") {
-      moveBookMd(bookFilename);
+      await moveBookMd(bookFilename);
     } else {
       throw new Error(`Неизвестное расширение файла книги "${bookFilename}"`); 
     }
-  });
+  };
 };
 
 const updateVuepressConfig = () => {
@@ -335,7 +360,7 @@ const updateVuepressConfig = () => {
   fs.writeFileSync(vuepressConfigPath, JSON.stringify(vuepressConfig));
 };
 
-const build = (source = "..", dest = ".") => {
+const build = async (source = "..", dest = ".") => {
   sourceDir = source;
   workDir = dest;
 
@@ -346,13 +371,18 @@ const build = (source = "..", dest = ".") => {
   vuepressConfigPath = path.join(workDir, "docs", ".vuepress", "config.json");
 
   config = readConfig();
+  
+  if (!config.vuepress.cacheId) {
+    config.vuepress.cacheId = 1;
+  }
+
   try {
     // перемещение файлов
     const sourceFilesPath = path.join(sourceDir, FILE_DIR);
     moveFiles(sourceFilesPath, destFilesDir);   
     
     movePages();
-    moveBooks();
+    await moveBooks();
     updateVuepressConfig();
   } catch (err) {
     console.log(err);

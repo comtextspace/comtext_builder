@@ -4,9 +4,15 @@ const path = require("path");
 // 3-rd paty
 const readDir = require("fs-readdir-recursive");
 
+// Не работает локально
+jest.mock('../source/cache', () => ({
+  tryRestoreFileFromCache: jest.fn().mockResolvedValue(false),
+  saveFileToCache: jest.fn().mockResolvedValue(false)
+}));
+
 const siteBuilder = require("../source/site_builder.js");
 
-test("buildSite", () => {
+test("buildSite", async () => {
   fs.rmSync("./test_sitebuilder/dest", {
     recursive: true,
     force: true,
@@ -24,7 +30,7 @@ test("buildSite", () => {
     "./test_sitebuilder/dest/docs/.vuepress/config.json"
   );
 
-  siteBuilder.build("./test_sitebuilder/source/", "./test_sitebuilder/dest/");
+  await siteBuilder.build("./test_sitebuilder/source/", "./test_sitebuilder/dest/");
 
   const foundFiles = readDir("./test_sitebuilder/dest_correct", () => true);
 
