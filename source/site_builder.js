@@ -1,15 +1,13 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
-const YAML = require("yaml");
-const _ = require("lodash");
+import YAML from "yaml";
+import _ from "lodash";
+import AdmZip from "adm-zip";
+import { execSync } from "child_process";
 
-const AdmZip = require("adm-zip");
-
-const { execSync } = require("child_process");
-
-const { isRunningInGitHubActions } = require("./utils.js");
-const { tryRestoreFileFromCache, saveFileToCache } = require("./cache.js");
+import { isRunningInGitHubActions } from "./utils.js";
+import { tryRestoreFileFromCache, saveFileToCache } from "./cache.js";
 
 let workDir;
 let destImageDir;
@@ -390,4 +388,4 @@ const build = async (source = "..", dest = ".") => {
   }
 };
 
-module.exports.build = build;
+export { build };

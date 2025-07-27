@@ -2,6 +2,7 @@
   "name": "comtext_builder",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "repository": "https://github.com/comtextspace/comtext_builder.git",
   "author": "comtextspace <comtextspace@comtextspace.ru>",
   "license": "MIT",
@@ -25,7 +26,7 @@
   "scripts": {
     "docs:dev": "vuepress dev docs --clean-cache",
     "docs:build": "vuepress build docs",
-    "test": "jest",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "lint": "eslint .",
     "lint-fix": "eslint . --fix"
   },

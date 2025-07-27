@@ -1,7 +1,7 @@
-const cache = require('@actions/cache');
-const core = require('@actions/core');
-const fs = require('fs');
-const crypto = require('crypto');
+import cache from '@actions/cache';
+import core from '@actions/core';
+import fs from 'fs';
+import crypto from 'crypto';
 
 /**
  * Попытаться восстановить кэш по ключу: prefix + hash(fileToHashPath)
@@ -11,7 +11,7 @@ const crypto = require('crypto');
  * @param {string} restoreToPath - Путь, куда восстановить кэш (например, 'node_modules')
  * @returns {Promise<string|false>} - Возвращает ключ, если кэш найден, иначе false
  */
-async function tryRestoreFileFromCache(prefix, fileToHashPath, restoreToPath) {
+export async function tryRestoreFileFromCache(prefix, fileToHashPath, restoreToPath) {
   try {
     // Проверяем, существует ли файл, от которого зависит ключ
     if (!fs.existsSync(fileToHashPath)) {
@@ -61,7 +61,7 @@ async function tryRestoreFileFromCache(prefix, fileToHashPath, restoreToPath) {
  * @param {string} pathToCache - Путь к файлу или папке, которую нужно сохранить в кэш
  * @returns {Promise<boolean>} - true, если сохранение прошло успешно, иначе false
  */
-async function saveFileToCache(prefix, fileToHashPath, pathToCache) {
+export async function saveFileToCache(prefix, fileToHashPath, pathToCache) {
     try {
       // Проверяем, существует ли файл, от которого зависит ключ
       if (!fs.existsSync(fileToHashPath)) {
@@ -103,6 +103,3 @@ async function saveFileToCache(prefix, fileToHashPath, pathToCache) {
       return false;
     }
   }
-  
-module.exports = { tryRestoreFileFromCache, saveFileToCache };
-

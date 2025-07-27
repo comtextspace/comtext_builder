@@ -1,11 +1,15 @@
-const path = require("path");
-const dotenv = require("dotenv");
+import { fileURLToPath } from 'url';
+import path from "path";
+import dotenv from "dotenv";
 
 dotenv.config();
 
-const siteBuilder = require("./source/site_builder.js");
+import { build } from "./source/site_builder.js";
 
-const rootDir = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rootDir = __dirname;
+
 const booksDir = process.env.PATH_TO_BOOKS ?? path.join(rootDir, "..");
 
-await siteBuilder.build(booksDir, rootDir);
+await build(booksDir, rootDir);
