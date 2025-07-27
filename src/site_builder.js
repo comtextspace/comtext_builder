@@ -15,6 +15,8 @@ let destMdDir;
 let destFilesDir;
 let vuepressConfigPath;
 
+const DEBUG = false;
+
 const IMAGE_DIR = "img";
 const FILE_DIR = "files";
 
@@ -225,7 +227,7 @@ const zipFiles = (zipFilePath, filePath, imageDir) => {
   const baseName = path.basename(filePath, path.extname(filePath));
 
   // Фильтруем файлы, оставляя только те, которые начинаются с baseName и имеют графическое расширение
-  imageFiles = files.filter(file => {
+  const imageFiles = files.filter(file => {
     const ext = path.extname(file).toLowerCase();
     return file.startsWith(baseName) && [".png", ".jpg", ".jpeg", ".gif"].includes(ext);
   });
@@ -236,7 +238,7 @@ const zipFiles = (zipFilePath, filePath, imageDir) => {
     const fileStat = fs.statSync(fullPath);
 
   if (fileStat.isFile()) {
-    const zipEntry = zip.addLocalFile(fullPath, "img", null, zipFileDate); // <-- здесь указываем папку внутри архива
+    zip.addLocalFile(fullPath, "img", null, zipFileDate); // <-- здесь указываем папку внутри архива
 
     // console.log(`Добавлено в архив: img/${file}`);
   }
@@ -259,12 +261,15 @@ function exportFb2(ctFilePath, fb2FilePath, resourcePath) {
     `--lua-filter=src/pandoc/filter.lua`;
 
   const res = execSync(pandocCommand);
-  // console.log(pandocCommand);
-  // console.log('' + res);
+
+  if (DEBUG) {
+    console.log(pandocCommand);
+    console.log("" + res);
+  }
 
   const sedCommand = `sed '0,/<title><p>[^<]*<\\/p><\\/title>/s///' "${fb2FilePath}" > "${fb2FilePath}.tmp" && mv "${fb2FilePath}.tmp" "${fb2FilePath}"`;
 
-  const res2 = execSync(sedCommand);
+  execSync(sedCommand);
 }
 
 function exportEpub(ctFilePath, epubFilePath, resourcePath) {

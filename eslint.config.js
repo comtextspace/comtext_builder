@@ -13,6 +13,7 @@ export default [
       sourceType: 'module', // важно для ESM (type: "module")
       globals: {
         ...globals.node, // добавляем глобальные переменные Node.js (process, __dirname и т.д.)
+        ...globals.jest,
       },
     },
     rules: {
