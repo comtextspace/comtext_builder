@@ -97,18 +97,17 @@ export default {
       headerless: true,
     });
     md.use(md_katex, {
-      strict: false,
-      //  katexOptions: { strict: katex_strict_handler },
+      strict: "warn"
     });
   },
 };
 
 // Обработчик вызывается при появлении ошибки при обработке формы KaTeX
 // https://katex.org/docs/options.html
-function katex_strict_handler(errorCode, errorMsg, token) {
-  if (errorCode === "unicodeTextInMathMode") {
-    return "ignore";
-  } else {
-    return "warn";
-  }
-}
+// function katex_strict_handler(errorCode, errorMsg, token) {
+//   if (errorCode === "unicodeTextInMathMode") {
+//     return "ignore";
+//   } else {
+//     return "warn";
+//   }
+// }
