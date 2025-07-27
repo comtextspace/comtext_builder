@@ -1,18 +1,5 @@
-# Текстология
+# ComtextBuilder
 
-Цели проекта:
+ComtextBuilder — сборщик сайта на основе файлов в формате [Comtext](https://research.comtext.space/format-comtext.html).
 
-1. Создание универсального формата для обмена текстологическими наработками;
-2. Создание инструментов для удобной работы с этим форматом.
-
-[Описание структуры файлов](structure.md) для сборки файлов.
-
-Описание формата находится в [репозитории](https://github.com/ZaryaXYZ/comtext) и на [сайте](https://comtext.zarya.xyz).
-
-
-
-
-
-
-
-
+ComtextBuilder подключается к репозиторию с помощью скрипта для деплоя ([пример](https://github.com/comtextspace/rubin/blob/main/.github/workflows/deploy_site.yml)). Репозиторий к которому подключается ComtextBuilder должен иметь [следующую структуру](structure.md).
