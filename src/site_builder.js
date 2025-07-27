@@ -4,7 +4,7 @@ const path = require("path");
 const YAML = require("yaml");
 const _ = require("lodash");
 
-const AdmZip = require('adm-zip');
+const AdmZip = require("adm-zip");
 
 const { execSync } = require("child_process");
 
@@ -70,7 +70,7 @@ const movePages = () => {
 };
 
 const moveBookFromConfig = (bookConfigFilename) => {
-  console.log('moveBookFromConfig: ' + bookConfigFilename)
+  console.log("moveBookFromConfig: " + bookConfigFilename);
   const bookConfig = readYamlFile(path.join(sourceDir, bookConfigFilename));
   const bookDir = path.join(sourceDir, path.dirname(bookConfigFilename));
 
@@ -96,7 +96,7 @@ const moveBookFromConfig = (bookConfigFilename) => {
 
   fs.writeFileSync(destBookPath, bookContent);
 
-  const bookContentComtext = bookContent.replaceAll('](/img/', '](img/');
+  const bookContentComtext = bookContent.replaceAll("](/img/", "](img/");
   fs.writeFileSync(destCtFilePath, bookContentComtext);
 
   const sourceImagesPath = path.join(bookDir, IMAGE_DIR);
@@ -108,11 +108,11 @@ const moveBookFromConfig = (bookConfigFilename) => {
   );
 
   if (!_.has(bookConfig, "export")) {
-    return
+    return;
   }
 
-  if (bookConfig.export.includes('fb2')) {
-    console.log('Export to fb2');
+  if (bookConfig.export.includes("fb2")) {
+    console.log("Export to fb2");
     
     const pandocCommand =
       `pandoc ${destCtFilePath} ` +
@@ -122,7 +122,7 @@ const moveBookFromConfig = (bookConfigFilename) => {
 
     const res = execSync(pandocCommand);
     console.log(pandocCommand);
-    console.log('' + res);
+    console.log("" + res);
   }
 };
 
@@ -133,35 +133,8 @@ function changeFileExtension(filePath, newExtension) {
   return path.join(dir, name + newExtension);  // Собираем новый путь
 }
 
-/**
- * Устанавливает одинаковую дату для всех файлов в epub-архиве.
- *
- * @param {string} epubPath - Полный путь к epub-файлу
- * @param {Date} [fixedDate] - Дата, которую нужно установить (по умолчанию: 2000-01-01T00:00:00.000Z)
- */
-function normalizeEpubTimestamps(epubPath, fixedDate = new Date("2000-01-01T00:00:00.000Z")) {
-  if (!fs.existsSync(epubPath)) {
-    throw new Error(`Файл не найден: ${epubPath}`);
-  }
-
-  const zip = new AdmZip(epubPath);
-
-  const zipEntries = zip.getEntries();
-
-  for (const entry of zipEntries) {
-    // Устанавливаем фиксированную дату
-    entry.header.time = fixedDate;
-  }
-
-  // Сохраняем архив поверх оригинала (или можно указать другой путь)
-  const buffer = zip.toBuffer();
-  fs.writeFileSync(epubPath, buffer);
-
-  console.log(`Все временные метки в ${epubPath} обновлены на ${fixedDate.toISOString()}`);
-}
-
 const moveBookMd = (bookMdFilename) => {
-  console.log('moveBookMd: ' + bookMdFilename);
+  console.log("moveBookMd: " + bookMdFilename);
 
   const bookFilename = path.join(sourceDir, bookMdFilename);
   const bookDir = path.join(sourceDir, path.dirname(bookMdFilename));
@@ -175,26 +148,26 @@ const moveBookMd = (bookMdFilename) => {
     changeFileExtension(bookBasename, ".ct")
   );
   
-  const destCtZipFilePath = destCtFilePath + '.zip';
+  const destCtZipFilePath = destCtFilePath + ".zip";
 
 
   let bookContent = concatFiles([bookFilename]);
   
   fs.writeFileSync(destBookPath, bookContent);
 
-  const bookContentComtext = bookContent.replaceAll('](/img/', '](img/');
+  const bookContentComtext = bookContent.replaceAll("](/img/", "](img/");
   fs.writeFileSync(destCtFilePath, bookContentComtext);
 
   moveFiles(sourceImagesPath, destImageDir);
 
   // Нужно из-за того, что cover-image при конвертации
   // через pandoc 3.7.1 в epub не работает с --resource-path
-  if (!fs.existsSync('./img/')) {
-    fs.mkdirSync('./img/');
+  if (!fs.existsSync("./img/")) {
+    fs.mkdirSync("./img/");
   }
-  moveFiles(sourceImagesPath, './img/'); 
+  moveFiles(sourceImagesPath, "./img/"); 
   
-  console.log('Zip files');
+  console.log("Zip files");
   const zipTimer = startTimer();
   zipFiles(destCtZipFilePath, destCtFilePath, destImageDir);
   endTimer(zipTimer);
@@ -205,7 +178,7 @@ const moveBookMd = (bookMdFilename) => {
   //   return
   // }
 
-  console.log('Export to fb2');
+  console.log("Export to fb2");
 
   const fb2FilePath = path.join(destFilesDir, 
     changeFileExtension(bookBasename, ".fb2")
@@ -215,7 +188,7 @@ const moveBookMd = (bookMdFilename) => {
   exportFb2(destCtFilePath, fb2FilePath, destPublicDir);
   endTimer(fb2Timer);
 
-  console.log('Export to epub');
+  console.log("Export to epub");
 
   const epubFilePath = path.join(destFilesDir, 
     changeFileExtension(bookBasename, ".epub")
@@ -254,7 +227,7 @@ const zipFiles = (zipFilePath, filePath, imageDir) => {
   // Фильтруем файлы, оставляя только те, которые начинаются с baseName и имеют графическое расширение
   imageFiles = files.filter(file => {
     const ext = path.extname(file).toLowerCase();
-    return file.startsWith(baseName) && ['.png', '.jpg', '.jpeg', '.gif'].includes(ext);
+    return file.startsWith(baseName) && [".png", ".jpg", ".jpeg", ".gif"].includes(ext);
   });
 
   // Добавляем каждое изображение в подкаталог img архива
@@ -275,7 +248,7 @@ for (const entry of zip.getEntries()) {
 
   // Сохраняем архив
   zip.writeZip(zipFilePath);
-}
+};
 
 function exportFb2(ctFilePath, fb2FilePath, resourcePath) {
   const pandocCommand =
@@ -319,18 +292,18 @@ function exportEpub(ctFilePath, epubFilePath, resourcePath) {
   // console.log('' + res);
 }
 
-// eslint-disable-next-line consistent-return
+ 
 const moveBooks = () => {
   if (config.books === null) {
     return null;
   }
 
   config.books.forEach((bookFilename) => {
-    const ext = path.extname(bookFilename)
+    const ext = path.extname(bookFilename);
 
-    if (ext == '.yml') {
+    if (ext == ".yml") {
       moveBookFromConfig(bookFilename);
-    } else if (ext == '.md') {
+    } else if (ext == ".md") {
       moveBookMd(bookFilename);
     } else {
       throw new Error(`Неизвестное расширение файла книги "${bookFilename}"`); 

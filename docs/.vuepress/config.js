@@ -1,9 +1,8 @@
 import fs from "fs";
 import path from "path";
 
-import { defaultTheme } from '@vuepress/theme-default';
-import { viteBundler } from '@vuepress/bundler-vite';
-import { defineUserConfig } from 'vuepress';
+import { defaultTheme } from "@vuepress/theme-default";
+import { viteBundler } from "@vuepress/bundler-vite";
 
 import md_table from "markdown-it-multimd-table";
 import md_katex from "@traptitech/markdown-it-katex";

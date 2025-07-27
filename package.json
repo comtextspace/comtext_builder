@@ -9,13 +9,12 @@
     "@comtext/markdown-it-book-page-number": "^0.3.0",
     "@comtext/markdown-it-razradka": "^0.2.0",
     "@comtext/markdown-it-underline": "^0.1.0",
+    "@eslint/js": "^9.32.0",
     "@mdit/plugin-figure": "^0.13.1",
     "@traptitech/markdown-it-katex": "^3.6.0",
     "@vuepress/bundler-vite": "^2.0.0-rc.24",
     "@vuepress/theme-default": "^2.0.0-rc.112",
-    "eslint": "^8.28.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.26.0",
+    "eslint": "^9.32.0",
     "fs-readdir-recursive": "^1.1.0",
     "jest": "^27.2.4",
     "markdown-it-footnote": "^3.0.3",
@@ -26,7 +25,9 @@
   "scripts": {
     "docs:dev": "vuepress dev docs --clean-cache",
     "docs:build": "vuepress build docs",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix"
   },
   "dependencies": {
     "adm-zip": "^0.5.16",
