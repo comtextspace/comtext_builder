@@ -4,7 +4,7 @@ const path = require("path");
 // 3-rd paty
 const readDir = require("fs-readdir-recursive");
 
-const siteBuilder = require("../src/site_builder.js");
+const siteBuilder = require("../source/site_builder.js");
 
 test("buildSite", () => {
   fs.rmSync("./test_sitebuilder/dest", {

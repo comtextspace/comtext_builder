@@ -120,7 +120,7 @@ const moveBookFromConfig = (bookConfigFilename) => {
       `pandoc ${destCtFilePath} ` +
       `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
       `--resource-path=${destPublicDir} ` +
-      `--lua-filter=src/pandoc/filter.lua`;
+      `--lua-filter=source/pandoc/filter.lua`;
 
     const res = execSync(pandocCommand);
     console.log(pandocCommand);
@@ -257,8 +257,8 @@ function exportFb2(ctFilePath, fb2FilePath, resourcePath) {
     `pandoc ${ctFilePath} ` +
     `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
     `--resource-path=${resourcePath} ` +
-    `--lua-filter=src/pandoc/remove_toc.lua ` +
-    `--lua-filter=src/pandoc/filter.lua`;
+    `--lua-filter=source/pandoc/remove_toc.lua ` +
+    `--lua-filter=source/pandoc/filter.lua`;
 
   const res = execSync(pandocCommand);
 
@@ -283,8 +283,8 @@ function exportEpub(ctFilePath, epubFilePath, resourcePath) {
   `--toc-depth=3 ` +
   `--gladtex ` +
   `--top-level-division=chapter ` +
-  `--lua-filter=src/pandoc/remove_toc.lua ` +
-  `--lua-filter=src/pandoc/filter.lua`;
+  `--lua-filter=source/pandoc/remove_toc.lua ` +
+  `--lua-filter=source/pandoc/filter.lua`;
 
   execSync(pandocCommand);
 
