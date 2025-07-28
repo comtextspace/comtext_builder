@@ -217,7 +217,7 @@ const moveBookMd = async (bookMdFilename) => {
   const epubTimer = startTimer();
 
   if (isRunningInGitHubActions()) {
-    console.log('isRunningInGitHubActions');
+    //console.log('isRunningInGitHubActions');
   }
 
   exportEpub(destCtFilePath, epubFilePath, destPublicDir);
