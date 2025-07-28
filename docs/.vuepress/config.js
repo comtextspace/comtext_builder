@@ -3,6 +3,7 @@ import path from "path";
 
 import { defaultTheme } from "@vuepress/theme-default";
 import { viteBundler } from "@vuepress/bundler-vite";
+import { slugify as defaultSlugify } from '@mdit-vue/shared';
 
 import md_table from "markdown-it-multimd-table";
 import md_katex from "@traptitech/markdown-it-katex";
@@ -50,6 +51,17 @@ const makeRevisionmeHeader = (config) => {
 
 const revisionmeHeader = makeRevisionmeHeader(json_config);
 
+const customSlugify = (str) => {
+  // Удаляем опасные символы
+  const cleaned = str
+    .replace(/[«»"!?:—–@#$%^&*()]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  
+  // Передаём очищенный текст стандартной функции slugify
+  return defaultSlugify(cleaned)
+}
+
 export default {
   bundler: viteBundler({
     viteOptions: {},
@@ -83,6 +95,7 @@ export default {
     extractHeaders: {
       level: [2, 3, 4, 5, 6],
     },
+    slugify: customSlugify
   },
 
   extendsMarkdown: (md) => {
