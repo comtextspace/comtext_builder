@@ -195,14 +195,14 @@ const moveBookMd = async (bookMdFilename) => {
   const fb2Hash = `fb2-${bookMdFilename}-${cacheId}`;
 
   if (isRunningInGitHubActions()) {
-    loadedFromCache = await tryRestoreFileFromCache(fb2Hash, destCtFilePath, fb2FilePath);
+   //  loadedFromCache = await tryRestoreFileFromCache(fb2Hash, destCtFilePath, fb2FilePath);
   }
 
   if (!loadedFromCache) {
     exportFb2(destCtFilePath, fb2FilePath, destPublicDir);
 
     if (isRunningInGitHubActions()) {
-      saveFileToCache(fb2Hash, destCtFilePath, fb2FilePath);
+     //  saveFileToCache(fb2Hash, destCtFilePath, fb2FilePath);
     }
   }
   
