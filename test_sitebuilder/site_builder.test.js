@@ -1,18 +1,23 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 // 3-rd paty
-const readDir = require("fs-readdir-recursive");
+import { jest } from '@jest/globals'; // Импортируем jest для ESM
+import readDir from "fs-readdir-recursive";
 
-// Не работает локально
-jest.mock('../source/cache.js', () => ({
+// --- ИСПРАВЛЕННЫЙ БЛОК МОКА ---
+// Используем jest.unstable_mockModule для ESM
+// ВАЖНО: Это должно быть до импорта тестируемого модуля
+jest.unstable_mockModule('../source/cache.js', () => ({
+  // Экспортируем функции как именованные exports
   tryRestoreFileFromCache: jest.fn().mockResolvedValue(false),
-  saveFileToCache: jest.fn().mockResolvedValue(false)
+  saveFileToCache: jest.fn().mockResolvedValue(false),
+  // Если бы у cache.js был экспорт по умолчанию, нужно было бы добавить default: ...
 }));
 
-import { build } from "../source/site_builder.js";
-
 test("buildSite", async () => {
+  const { build } = await import("../source/site_builder.js");
+
   fs.rmSync("./test_sitebuilder/dest", {
     recursive: true,
     force: true,
