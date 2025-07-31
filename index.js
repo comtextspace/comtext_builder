@@ -1,16 +1,17 @@
-import { fileURLToPath } from 'url';
 import path from "path";
-
-import dotenv from "dotenv";
+import { fileURLToPath } from 'url';
 
 import { build } from "./source/site_builder.js";
 
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const rootDir = __dirname;
 
-const booksDir = process.env.PATH_TO_BOOKS ?? path.join(rootDir, "..");
+// Из GitHub Actions скрипт запускается так:
+// ./ — корень на сервере, содержит каталог с файлами книг
+// ./builder — репозиторий comtext_builder
+// TODO нужно изменить чтобы index.js принимал оба пути как параметры
 
-await build(booksDir, rootDir);
+const sourcePath = path.join(__dirname, "..");
+const destPath = __dirname;
+
+await build(sourcePath, destPath);
