@@ -72,6 +72,9 @@ const movePages = () => {
   moveFiles(sourceImagesPath, destImageDir);
 };
 
+// Устаревшая функция обработки файла с книгой
+// такие книги остались в некоторых репозиториях поэтому удалить сразу нельзя
+// развивать не нужно, будет удалена
 const moveBookFromConfig = (bookConfigFilename) => {
   console.log("moveBookFromConfig: " + bookConfigFilename);
   const bookConfig = readYamlFile(path.join(sourceDir, bookConfigFilename));
