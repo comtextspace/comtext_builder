@@ -23,7 +23,7 @@ const FILE_DIR = "files";
 
 const configFilename = "comtext.yml";
 
-const zipFileDate = new Date("2020-01-01T00:00:00Z"); // фиксированная дата
+const zipFileDate = new Date(Date.UTC(2020, 0, 1, 0, 0, 0));
 
 let sourceDir;
 

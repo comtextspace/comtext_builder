@@ -5,7 +5,6 @@ import path from "path";
 import { jest } from '@jest/globals'; // Импортируем jest для ESM
 import readDir from "fs-readdir-recursive";
 
-// --- ИСПРАВЛЕННЫЙ БЛОК МОКА ---
 // Используем jest.unstable_mockModule для ESM
 // ВАЖНО: Это должно быть до импорта тестируемого модуля
 jest.unstable_mockModule('../source/cache.js', () => ({
@@ -14,6 +13,43 @@ jest.unstable_mockModule('../source/cache.js', () => ({
   saveFileToCache: jest.fn().mockResolvedValue(false),
   // Если бы у cache.js был экспорт по умолчанию, нужно было бы добавить default: ...
 }));
+
+// Следующий код подменяет функцию конвертации даты в adm-zip
+// чтобы архив формировался одинаково независимо от таймзоны ПК
+//
+// Динамически загружаем adm-zip и его утилиты
+const admZip = await import('adm-zip');
+let utils;
+
+try {
+    // Пытаемся импортировать утилиты
+    const utilsModule = await import('adm-zip/util/utils.js');
+    utils = utilsModule.default || utilsModule.utils || utilsModule;
+} catch (err) {
+    // fallback для других путей
+    const utilsModule = await import('adm-zip/util/utils');
+    utils = utilsModule.default || utilsModule.utils || utilsModule;
+}
+
+// Патчим fromDate2DOS, чтобы использовать UTC
+utils.fromDate2DOS = function (val) {
+    let date = 0;
+    let time = 0;
+
+    if (val.getUTCFullYear() > 1979) {
+        date = (((val.getUTCFullYear() - 1980) & 0x7f) << 9) |
+               ((val.getUTCMonth() + 1) << 5) |
+               val.getUTCDate();
+
+        time = (val.getUTCHours() << 11) |
+               (val.getUTCMinutes() << 5) |
+               (val.getUTCSeconds() >> 1);
+    }
+
+    return (date << 16) | time;
+};
+
+// ----------- конец замены модуля admZip
 
 test("buildSite", async () => {
   const { build } = await import("../source/site_builder.js");
