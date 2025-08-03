@@ -72,66 +72,6 @@ const movePages = () => {
   moveFiles(sourceImagesPath, destImageDir);
 };
 
-// Устаревшая функция обработки файла с книгой
-// такие книги остались в некоторых репозиториях поэтому удалить сразу нельзя
-// развивать не нужно, будет удалена
-const moveBookFromConfig = (bookConfigFilename) => {
-  console.log("moveBookFromConfig: " + bookConfigFilename);
-  const bookConfig = readYamlFile(path.join(sourceDir, bookConfigFilename));
-  const bookDir = path.join(sourceDir, path.dirname(bookConfigFilename));
-
-  const bookFiles = bookConfig.files.map((filename) =>
-    path.join(bookDir, filename)
-  );
-  const destBookPath = path.join(destMdDir, bookConfig.filename);
-  const destCtFilePath = path.join(
-    destFilesDir,
-    bookConfig.filename.replace(".md", ".ct")
-  );
-
-  let bookContent = concatFiles(bookFiles);
-
-  if (_.has(bookConfig, "cover")) {
-    const sourceCoverPath = path.join(bookDir, bookConfig.cover);
-    const destCoverPath = path.join(destImageDir, bookConfig.cover);
-    fs.copyFileSync(sourceCoverPath, destCoverPath);
-
-    const coverMdLink = `![](/${path.join(IMAGE_DIR, bookConfig.cover)})`;
-    bookContent = bookContent.replace("[[cover]]", coverMdLink);
-  }
-
-  fs.writeFileSync(destBookPath, bookContent);
-
-  const bookContentComtext = bookContent.replaceAll("](/img/", "](img/");
-  fs.writeFileSync(destCtFilePath, bookContentComtext);
-
-  const sourceImagesPath = path.join(bookDir, IMAGE_DIR);
-  moveFiles(sourceImagesPath, destImageDir);
-
-  const fb2FilePath = path.join(
-    destFilesDir,
-    bookConfig.filename.replace(".md", ".fb2")
-  );
-
-  if (!_.has(bookConfig, "export")) {
-    return;
-  }
-
-  if (bookConfig.export.includes("fb2")) {
-    console.log("Export to fb2");
-    
-    const pandocCommand =
-      `pandoc ${destCtFilePath} ` +
-      `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
-      `--resource-path=${destPublicDir} ` +
-      `--lua-filter=source/pandoc/filter.lua`;
-
-    const res = execSync(pandocCommand);
-    console.log(pandocCommand);
-    console.log("" + res);
-  }
-};
-
 function changeFileExtension(filePath, newExtension) {
   const dir = path.dirname(filePath);          // Получаем директорию
   const filename = path.basename(filePath);    // Имя файла с текущим расширением
@@ -332,9 +272,7 @@ const moveBooks = async () => {
   for (const bookFilename of config.books) {
     const ext = path.extname(bookFilename);
 
-    if (ext == ".yml") {
-      moveBookFromConfig(bookFilename);
-    } else if (ext == ".md") {
+    if (ext == ".md") {
       await moveBookMd(bookFilename);
     } else {
       throw new Error(`Неизвестное расширение файла книги "${bookFilename}"`); 

@@ -79,8 +79,8 @@ test("buildSite", async () => {
     const correctFilename = path.join("./test_sitebuilder/dest_correct", filename);
     const testFilename = path.join("./test_sitebuilder/dest", filename);
   
-    // console.log('correct ' + correctFilename);
-    // console.log('test ' + testFilename);
+    console.log('correct ' + correctFilename);
+    console.log('test ' + testFilename);
 
     let correctFile, testFile;
   
