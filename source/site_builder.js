@@ -93,6 +93,10 @@ const moveBookMd = async (bookMdFilename) => {
   const destCtFilePath = path.join(destFilesDir, 
     changeFileExtension(bookBasename, ".ct")
   );
+
+  const destCtFileForConvertPath = path.join(destFilesDir, 
+    changeFileExtension(bookBasename, ".temp.ct")
+  );
   
   const destCtZipFilePath = destCtFilePath + ".zip";
 
@@ -104,6 +108,16 @@ const moveBookMd = async (bookMdFilename) => {
 
   const bookContentComtext = bookContent.replaceAll("](/img/", "](img/");
   fs.writeFileSync(destCtFilePath, bookContentComtext);
+
+  const bookContentComtextForConvert = bookContentComtext
+    // 1. Удаляем [# N], если оно на отдельной строке (возможно, с пробелами вокруг)
+    .replace(/^\n\[#\s*\d+\]\n$/gm, '\n')
+    // 2. Удаляем [# N], если оно окружено пробелами (внутри строки)
+    .replace(/ \[#\s*\d+\] /g, ' ')
+    // 3. Удаляем любые оставшиеся вхождения [# N] (на случай, если что-то пропустили)
+    .replace(/\[#\s*\d+\]/g, '');
+
+  fs.writeFileSync(destCtFileForConvertPath, bookContentComtextForConvert);
 
   moveFiles(sourceImagesPath, destImageDir);
 
@@ -143,7 +157,7 @@ const moveBookMd = async (bookMdFilename) => {
   }
 
   if (!loadedFromCache) {
-    exportFb2(destCtFilePath, fb2FilePath, destPublicDir);
+    exportFb2(destCtFileForConvertPath, fb2FilePath, destPublicDir);
 
     if (isRunningInGitHubActions()) {
      //  saveFileToCache(fb2Hash, destCtFilePath, fb2FilePath);
@@ -164,7 +178,7 @@ const moveBookMd = async (bookMdFilename) => {
     //console.log('isRunningInGitHubActions');
   }
 
-  exportEpub(destCtFilePath, epubFilePath, destPublicDir);
+  exportEpub(destCtFileForConvertPath, epubFilePath, destPublicDir);
 
   endTimer(epubTimer);    
 };
