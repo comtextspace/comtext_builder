@@ -8,7 +8,7 @@ lang: ru-RU
 
 # Третья книга
 
-![cover](/img/book_third.png)
+![](/img/book_third.png)
 
 [[TOC]]
 

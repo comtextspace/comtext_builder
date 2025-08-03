@@ -97,9 +97,10 @@ const moveBookMd = async (bookMdFilename) => {
   const destCtZipFilePath = destCtFilePath + ".zip";
 
 
-  let bookContent = concatFiles([bookFilename]);
-  
-  fs.writeFileSync(destBookPath, bookContent);
+  const bookContent = concatFiles([bookFilename]);
+  let preparedBookContent = bookContent.replaceAll("![cover](", "![](");
+
+  fs.writeFileSync(destBookPath, preparedBookContent);
 
   const bookContentComtext = bookContent.replaceAll("](/img/", "](img/");
   fs.writeFileSync(destCtFilePath, bookContentComtext);
@@ -135,7 +136,7 @@ const moveBookMd = async (bookMdFilename) => {
   const fb2Timer = startTimer();
 
   let loadedFromCache = false;
-  const fb2Hash = `fb2-${bookMdFilename}-${cacheId}`;
+  // const fb2Hash = `fb2-${bookMdFilename}-${cacheId}`;
 
   if (isRunningInGitHubActions()) {
    //  loadedFromCache = await tryRestoreFileFromCache(fb2Hash, destCtFilePath, fb2FilePath);

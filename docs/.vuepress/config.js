@@ -3,7 +3,7 @@ import path from "path";
 
 import { defaultTheme } from "@vuepress/theme-default";
 import { viteBundler } from "@vuepress/bundler-vite";
-import { slugify as defaultSlugify } from '@mdit-vue/shared';
+import { slugify as defaultSlugify } from "@mdit-vue/shared";
 
 import md_table from "markdown-it-multimd-table";
 import md_katex from "@traptitech/markdown-it-katex";
@@ -54,13 +54,13 @@ const revisionmeHeader = makeRevisionmeHeader(json_config);
 const customSlugify = (str) => {
   // Удаляем опасные символы
   const cleaned = str
-    .replace(/[«»"!?:—–@#$%^&*()]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
+    .replace(/[«»"!?:—–@#$%^&*()]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
   
   // Передаём очищенный текст стандартной функции slugify
-  return defaultSlugify(cleaned)
-}
+  return defaultSlugify(cleaned);
+};
 
 export default {
   bundler: viteBundler({

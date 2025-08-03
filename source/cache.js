@@ -1,7 +1,7 @@
-import cache from '@actions/cache';
-import core from '@actions/core';
-import fs from 'fs';
-import crypto from 'crypto';
+import cache from "@actions/cache";
+import core from "@actions/core";
+import fs from "fs";
+import crypto from "crypto";
 
 /**
  * Попытаться восстановить кэш по ключу: prefix + hash(fileToHashPath)
@@ -21,7 +21,7 @@ export async function tryRestoreFileFromCache(prefix, fileToHashPath, restoreToP
 
     // Читаем содержимое файла и вычисляем хеш
     const content = fs.readFileSync(fileToHashPath);
-    const hash = crypto.createHash('sha256').update(content).digest('hex');
+    const hash = crypto.createHash("sha256").update(content).digest("hex");
 
     // Формируем ключ
     const key = `${prefix}-${hash}`;
@@ -36,15 +36,15 @@ export async function tryRestoreFileFromCache(prefix, fileToHashPath, restoreToP
       console.log(`✅ Кэш найден и восстановлен: ${matchedKey}`);
       return matchedKey;
     } else {
-      console.log('❌ Кэш не найден');
+      console.log("❌ Кэш не найден");
       return false;
     }
   } catch (error) {
     // Ошибки валидации нужно пробрасывать
-    if (error.name === 'ValidationError') {
+    if (error.name === "ValidationError") {
       core.setFailed(`Ошибка валидации кэша: ${error.message}`);
       throw error;
-    } else if (error.name === 'ReservedCacheError') {
+    } else if (error.name === "ReservedCacheError") {
       console.warn(`⚠️ Кэш с этим ключом уже зарезервирован: ${error.message}`);
     } else {
       console.warn(`⚠️ Ошибка при восстановлении кэша: ${error.message}`);
@@ -76,7 +76,7 @@ export async function saveFileToCache(prefix, fileToHashPath, pathToCache) {
   
       // Генерируем хеш содержимого файла-источника
       const content = fs.readFileSync(fileToHashPath);
-      const hash = crypto.createHash('sha256').update(content).digest('hex');
+      const hash = crypto.createHash("sha256").update(content).digest("hex");
       const key = `${prefix}-${hash}`;
   
       console.log(`[Cache] Сохраняем в кэш по ключу: ${key}`);
@@ -87,10 +87,10 @@ export async function saveFileToCache(prefix, fileToHashPath, pathToCache) {
         console.log(`✅ Кэш успешно сохранён: ${key}`);
         return true;
       } catch (error) {
-        if (error.name === 'ValidationError') {
+        if (error.name === "ValidationError") {
           console.error(`❌ Ошибка валидации кэша: ${error.message}`);
           throw error;
-        } else if (error.name === 'ReservedCacheError') {
+        } else if (error.name === "ReservedCacheError") {
           console.warn(`⚠️ Кэш с ключом '${key}' уже существует.`);
           return false;
         } else {

@@ -9,7 +9,7 @@ author:
 
 [[TOC]]
 
-![cover](/img/book_first.jpg)
+![](/img/book_first.jpg)
 
 ## От редакции
 

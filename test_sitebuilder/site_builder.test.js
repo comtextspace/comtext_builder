@@ -2,12 +2,12 @@ import fs from "fs";
 import path from "path";
 
 // 3-rd paty
-import { jest } from '@jest/globals'; // Импортируем jest для ESM
+import { jest } from "@jest/globals"; // Импортируем jest для ESM
 import readDir from "fs-readdir-recursive";
 
 // Используем jest.unstable_mockModule для ESM
 // ВАЖНО: Это должно быть до импорта тестируемого модуля
-jest.unstable_mockModule('../source/cache.js', () => ({
+jest.unstable_mockModule("../source/cache.js", () => ({
   // Экспортируем функции как именованные exports
   tryRestoreFileFromCache: jest.fn().mockResolvedValue(false),
   saveFileToCache: jest.fn().mockResolvedValue(false),
@@ -18,16 +18,16 @@ jest.unstable_mockModule('../source/cache.js', () => ({
 // чтобы архив формировался одинаково независимо от таймзоны ПК
 //
 // Динамически загружаем adm-zip и его утилиты
-const admZip = await import('adm-zip');
+const admZip = await import("adm-zip");
 let utils;
 
 try {
     // Пытаемся импортировать утилиты
-    const utilsModule = await import('adm-zip/util/utils.js');
+    const utilsModule = await import("adm-zip/util/utils.js");
     utils = utilsModule.default || utilsModule.utils || utilsModule;
 } catch (err) {
     // fallback для других путей
-    const utilsModule = await import('adm-zip/util/utils');
+    const utilsModule = await import("adm-zip/util/utils");
     utils = utilsModule.default || utilsModule.utils || utilsModule;
 }
 
@@ -79,8 +79,8 @@ test("buildSite", async () => {
     const correctFilename = path.join("./test_sitebuilder/dest_correct", filename);
     const testFilename = path.join("./test_sitebuilder/dest", filename);
   
-    console.log('correct ' + correctFilename);
-    console.log('test ' + testFilename);
+    console.log("correct " + correctFilename);
+    console.log("test " + testFilename);
 
     let correctFile, testFile;
   

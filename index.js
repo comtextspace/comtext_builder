@@ -1,5 +1,5 @@
 import path from "path";
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from "url";
 
 import { build } from "./source/site_builder.js";
 

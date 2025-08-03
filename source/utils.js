@@ -1,4 +1,4 @@
 
 export function isRunningInGitHubActions() {
-    return process.env.GITHUB_ACTIONS === 'true';
+    return process.env.GITHUB_ACTIONS === "true";
 }
