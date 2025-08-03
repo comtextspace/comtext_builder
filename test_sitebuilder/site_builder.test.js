@@ -16,20 +16,9 @@ jest.unstable_mockModule("../source/cache.js", () => ({
 
 // Следующий код подменяет функцию конвертации даты в adm-zip
 // чтобы архив формировался одинаково независимо от таймзоны ПК
-//
-// Динамически загружаем adm-zip и его утилиты
-const admZip = await import("adm-zip");
-let utils;
 
-try {
-    // Пытаемся импортировать утилиты
-    const utilsModule = await import("adm-zip/util/utils.js");
-    utils = utilsModule.default || utilsModule.utils || utilsModule;
-} catch (err) {
-    // fallback для других путей
-    const utilsModule = await import("adm-zip/util/utils");
-    utils = utilsModule.default || utilsModule.utils || utilsModule;
-}
+const utilsModule = await import("adm-zip/util/utils.js");
+const utils = utilsModule.default || utilsModule.utils || utilsModule;
 
 // Патчим fromDate2DOS, чтобы использовать UTC
 utils.fromDate2DOS = function (val) {
@@ -49,7 +38,7 @@ utils.fromDate2DOS = function (val) {
     return (date << 16) | time;
 };
 
-// ----------- конец замены модуля admZip
+// ----------- конец замены функции из модуля admZip
 
 test("buildSite", async () => {
   const { build } = await import("../source/site_builder.js");
