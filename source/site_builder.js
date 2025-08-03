@@ -225,8 +225,8 @@ function exportFb2(ctFilePath, fb2FilePath, resourcePath) {
     `pandoc ${ctFilePath} ` +
     `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
     `--resource-path=${resourcePath} ` +
-    `--lua-filter=source/pandoc/remove_toc.lua ` +
-    `--lua-filter=source/pandoc/filter.lua`;
+    `--lua-filter=source/pandoc/remove-cover.lua ` +
+    `--lua-filter=source/pandoc/remove-toc.lua`;
 
   const res = execSync(pandocCommand);
 
@@ -251,8 +251,8 @@ function exportEpub(ctFilePath, epubFilePath, resourcePath) {
   `--toc-depth=3 ` +
   `--gladtex ` +
   `--top-level-division=chapter ` +
-  `--lua-filter=source/pandoc/remove_toc.lua ` +
-  `--lua-filter=source/pandoc/filter.lua`;
+  `--lua-filter=source/pandoc/remove-cover.lua ` +
+  `--lua-filter=source/pandoc/remove-toc.lua`;
 
   execSync(pandocCommand);
 
