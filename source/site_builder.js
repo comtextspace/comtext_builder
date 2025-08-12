@@ -65,9 +65,19 @@ const movePages = () => {
   config.pages.forEach((pageFilename) => {
     const sourseFilename = path.join(sourceDir, pageFilename);
     const destFilename = path.join(destMdDir, pageFilename);
-    fs.copyFileSync(sourseFilename, destFilename);
+
+    const sourceText = fs.readFileSync(sourseFilename, "utf8");
+    const preparedText = sourceText.replaceAll(
+      /\[\[files\s+([^\]]+?)\]\]/g,
+      (_, filename) => {
+        const trimmedName = filename.trim();
+        return `[comtext](${trimmedName}.ct.zip){.file-link} [FB2](${trimmedName}.fb2){.file-link} [EPUB](${trimmedName}.epub){.file-link}`;
+      }
+     );
+
+    fs.writeFileSync(destFilename, preparedText);
   });
-  // перемещение изображений для страниц
+  // перемещение изображений и файлов для страниц
   const sourceImagesPath = path.join(sourceDir, IMAGE_DIR);
   moveFiles(sourceImagesPath, destImageDir);
 };
@@ -111,11 +121,11 @@ const moveBookMd = async (bookMdFilename) => {
 
   const bookContentComtextForConvert = bookContentComtext
     // 1. Удаляем [# N], если оно на отдельной строке (возможно, с пробелами вокруг)
-    .replace(/^\n\[#\s*\d+\]\n$/gm, '\n')
+    .replace(/^\n\[#\s*\d+\]\n$/gm, "\n")
     // 2. Удаляем [# N], если оно окружено пробелами (внутри строки)
-    .replace(/ \[#\s*\d+\] /g, ' ')
+    .replace(/ \[#\s*\d+\] /g, " ")
     // 3. Удаляем любые оставшиеся вхождения [# N] (на случай, если что-то пропустили)
-    .replace(/\[#\s*\d+\]/g, '');
+    .replace(/\[#\s*\d+\]/g, "");
 
   fs.writeFileSync(destCtFileForConvertPath, bookContentComtextForConvert);
 
