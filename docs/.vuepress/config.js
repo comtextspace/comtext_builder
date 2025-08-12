@@ -12,6 +12,7 @@ import md_page_number from "@comtext/markdown-it-book-page-number";
 import md_underline from "@comtext/markdown-it-underline";
 import md_razradka from "@comtext/markdown-it-razradka";
 import { figure as md_figure } from "@mdit/plugin-figure";
+import md_attr from "markdown-it-attrs";
 
 const workDir = path.dirname(__filename);
 const jsonConfigPath = path.join(workDir, "config.json");
@@ -104,6 +105,7 @@ export default {
     md.use(md_underline);
     md.use(md_razradka);
     md.use(md_figure);
+    md.use(md_attr);
     md.use(md_table, {
       multiline: true,
       rowspan: true,
