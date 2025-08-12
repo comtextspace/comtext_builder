@@ -71,7 +71,7 @@ const movePages = () => {
       /\[\[files\s+([^\]]+?)\]\]/g,
       (_, filename) => {
         const trimmedName = filename.trim();
-        return `[comtext](${trimmedName}.ct.zip){.file-link} [FB2](${trimmedName}.fb2){.file-link} [EPUB](${trimmedName}.epub){.file-link}`;
+        return `[comtext](files/${trimmedName}.ct.zip){.file-link} [FB2](files/${trimmedName}.fb2){.file-link} [EPUB](files/${trimmedName}.epub){.file-link}`;
       }
      );
 
