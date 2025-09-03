@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { createHash } from 'crypto';
 
 import YAML from "yaml";
 import _ from "lodash";
@@ -7,7 +8,9 @@ import AdmZip from "adm-zip";
 import { execSync } from "child_process";
 
 import { isRunningInGitHubActions } from "./utils.js";
-import { tryRestoreFileFromCache, saveFileToCache } from "./cache.js";
+import { tryRestoreFileFromCache, saveFileToCache, initCache } from "./cache.js";
+
+const cacheId = 1;
 
 let workDir;
 let destImageDir;
@@ -26,6 +29,9 @@ const configFilename = "comtext.yml";
 const zipFileDate = new Date(Date.UTC(2020, 0, 1, 0, 0, 0));
 
 let sourceDir;
+
+const getHash = (text) => 
+  createHash('sha256').update(text, 'utf8').digest('hex');
 
 const readYamlFile = (filename) => {
   const file = fs.readFileSync(filename, "utf-8");
@@ -89,12 +95,13 @@ function changeFileExtension(filePath, newExtension) {
   return path.join(dir, name + newExtension);  // Собираем новый путь
 }
 
-const moveBookMd = async (bookMdFilename) => {
+const moveBookMd = (bookMdFilename) => {
   console.log("moveBookMd: " + bookMdFilename);
 
   const bookFilename = path.join(sourceDir, bookMdFilename);
   const bookDir = path.join(sourceDir, path.dirname(bookMdFilename));
   const bookBasename = path.basename(bookMdFilename);
+  const bookBasenameWithoutExt = path.basename(bookMdFilename, path.extname(bookMdFilename));
   const sourceImagesPath = path.join(bookDir, IMAGE_DIR);
 
   const destBookPath = path.join(destMdDir, bookBasename);
@@ -149,8 +156,6 @@ const moveBookMd = async (bookMdFilename) => {
   //   return
   // }
 
-  // const cacheId = config.vuepress.cacheId;
-
   console.log("Export to fb2");
 
   const fb2FilePath = path.join(destFilesDir, 
@@ -159,18 +164,23 @@ const moveBookMd = async (bookMdFilename) => {
   
   const fb2Timer = startTimer();
 
+  const sourceHash = getHash(bookContentComtextForConvert);
+
   let loadedFromCache = false;
-  // const fb2Hash = `fb2-${bookMdFilename}-${cacheId}`;
+  const fb2CacheFileName = `fb2--${bookBasenameWithoutExt}-|-${cacheId}--${sourceHash}.fb2`;
 
   if (isRunningInGitHubActions()) {
-   //  loadedFromCache = await tryRestoreFileFromCache(fb2Hash, destCtFilePath, fb2FilePath);
+    loadedFromCache = tryRestoreFileFromCache(fb2CacheFileName, fb2FilePath);
+    if (loadedFromCache) {
+      console.log("Loaded from cache");
+    }
   }
 
   if (!loadedFromCache) {
     exportFb2(destCtFileForConvertPath, fb2FilePath, destPublicDir);
 
     if (isRunningInGitHubActions()) {
-     //  saveFileToCache(fb2Hash, destCtFilePath, fb2FilePath);
+       saveFileToCache(fb2FilePath, fb2CacheFileName);
     }
   }
   
@@ -290,7 +300,7 @@ function exportEpub(ctFilePath, epubFilePath, resourcePath) {
 }
 
  
-const moveBooks = async () => {
+const moveBooks = () => {
   if (config.books === null) {
     return null;
   }
@@ -298,7 +308,7 @@ const moveBooks = async () => {
     const ext = path.extname(bookFilename);
 
     if (ext == ".md") {
-      await moveBookMd(bookFilename);
+      moveBookMd(bookFilename);
     } else {
       throw new Error(`Неизвестное расширение файла книги "${bookFilename}"`); 
     }
@@ -324,9 +334,11 @@ const updateVuepressConfig = () => {
   fs.writeFileSync(vuepressConfigPath, JSON.stringify(vuepressConfig));
 };
 
-const build = async (source = "..", dest = ".") => {
+const build = (source = "..", dest = ".", cachePath) => {
   sourceDir = source;
   workDir = dest;
+
+  initCache(cachePath);
 
   destImageDir = path.join(workDir, "docs", ".vuepress", "public", "img");
   destPublicDir = path.join(workDir, "docs", ".vuepress", "public");
@@ -346,7 +358,7 @@ const build = async (source = "..", dest = ".") => {
     moveFiles(sourceFilesPath, destFilesDir);   
     
     movePages();
-    await moveBooks();
+    moveBooks();
     updateVuepressConfig();
   } catch (err) {
     console.log(err);

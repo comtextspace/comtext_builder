@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Jest Test",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": [
+        "--experimental-vm-modules"
+      ],
+      "args": [
+        "./node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--no-notify",
+        "--watchAll=false",
+        "${relativeFile}"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "test"
+      },
+      "port": 9229,
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    }
+  ]
+}

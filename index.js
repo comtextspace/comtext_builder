@@ -12,6 +12,7 @@ const __dirname = path.dirname(__filename);
 // TODO нужно изменить чтобы index.js принимал оба пути как параметры
 
 const sourcePath = path.join(__dirname, "..");
+const cachePath = path.join(__dirname, "..", "export-cache");
 const destPath = __dirname;
 
-await build(sourcePath, destPath);
+build(sourcePath, destPath, cachePath);

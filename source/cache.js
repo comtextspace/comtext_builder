@@ -1,105 +1,76 @@
-import cache from "@actions/cache";
-import core from "@actions/core";
-import fs from "fs";
-import crypto from "crypto";
+import { existsSync, mkdirSync, copyFileSync, readdirSync, unlinkSync } from 'fs';
+import { resolve, join } from 'path';
 
-/**
- * Попытаться восстановить кэш по ключу: prefix + hash(fileToHashPath)
- *
- * @param {string} prefix - Префикс ключа (например, 'node-modules')
- * @param {string} fileToHashPath - Путь к файлу, хеш которого определяет версию кэша
- * @param {string} restoreToPath - Путь, куда восстановить кэш (например, 'node_modules')
- * @returns {Promise<string|false>} - Возвращает ключ, если кэш найден, иначе false
- */
-export async function tryRestoreFileFromCache(prefix, fileToHashPath, restoreToPath) {
-  try {
-    // Проверяем, существует ли файл, от которого зависит ключ
-    if (!fs.existsSync(fileToHashPath)) {
-      console.warn(`[Cache] Файл не найден: ${fileToHashPath}`);
-      return false;
-    }
+let CACHE_PATH;
 
-    // Читаем содержимое файла и вычисляем хеш
-    const content = fs.readFileSync(fileToHashPath);
-    const hash = crypto.createHash("sha256").update(content).digest("hex");
+export function initCache(cachePath) {
+  CACHE_PATH = cachePath;
 
-    // Формируем ключ
-    const key = `${prefix}-${hash}`;
-
-    console.log(`[Cache] Поиск кэша по ключу: ${key}`);
-    console.log(`[Cache] Путь восстановления: ${restoreToPath}`);
-
-    // Попытка восстановить кэш (без restoreKeys — только точное совпадение)
-    const matchedKey = await cache.restoreCache([restoreToPath], key);
-
-    if (matchedKey) {
-      console.log(`✅ Кэш найден и восстановлен: ${matchedKey}`);
-      return matchedKey;
-    } else {
-      console.log("❌ Кэш не найден");
-      return false;
-    }
-  } catch (error) {
-    // Ошибки валидации нужно пробрасывать
-    if (error.name === "ValidationError") {
-      core.setFailed(`Ошибка валидации кэша: ${error.message}`);
-      throw error;
-    } else if (error.name === "ReservedCacheError") {
-      console.warn(`⚠️ Кэш с этим ключом уже зарезервирован: ${error.message}`);
-    } else {
-      console.warn(`⚠️ Ошибка при восстановлении кэша: ${error.message}`);
-    }
-    return false;
+  if (!existsSync(CACHE_PATH)) {
+    mkdirSync(CACHE_PATH, { recursive: true });
   }
 }
 
+
 /**
- * Сохраняет файл или папку в кэш GitHub Actions по ключу: prefix + hash(fileToHashPath)
- *
- * @param {string} prefix - Префикс ключа (например, 'node-modules')
- * @param {string} fileToHashPath - Путь к файлу, хеш которого будет частью ключа
- * @param {string} pathToCache - Путь к файлу или папке, которую нужно сохранить в кэш
- * @returns {Promise<boolean>} - true, если сохранение прошло успешно, иначе false
+ * Пытается восстановить файл из кеша.
+ * @param {string} cacheFileName - Имя файла в папке кеша.
+ * @param {string} restoreToPath - Путь, куда скопировать файл.
+ * @returns {boolean} true, если файл был найден и скопирован, иначе false.
  */
-export async function saveFileToCache(prefix, fileToHashPath, pathToCache) {
-    try {
-      // Проверяем, существует ли файл, от которого зависит ключ
-      if (!fs.existsSync(fileToHashPath)) {
-        console.warn(`[Cache] Не могу создать ключ: файл не найден — ${fileToHashPath}`);
-        return false;
-      }
-  
-      if (!fs.existsSync(pathToCache)) {
-        console.warn(`[Cache] Не могу сохранить кэш: путь не существует — ${pathToCache}`);
-        return false;
-      }
-  
-      // Генерируем хеш содержимого файла-источника
-      const content = fs.readFileSync(fileToHashPath);
-      const hash = crypto.createHash("sha256").update(content).digest("hex");
-      const key = `${prefix}-${hash}`;
-  
-      console.log(`[Cache] Сохраняем в кэш по ключу: ${key}`);
-      console.log(`[Cache] Путь для сохранения: ${pathToCache}`);
-  
-      try {
-        await cache.saveCache([pathToCache], key);
-        console.log(`✅ Кэш успешно сохранён: ${key}`);
-        return true;
-      } catch (error) {
-        if (error.name === "ValidationError") {
-          console.error(`❌ Ошибка валидации кэша: ${error.message}`);
-          throw error;
-        } else if (error.name === "ReservedCacheError") {
-          console.warn(`⚠️ Кэш с ключом '${key}' уже существует.`);
-          return false;
-        } else {
-          console.warn(`⚠️ Ошибка при сохранении кэша: ${error.message}`);
-          return false;
-        }
-      }
-    } catch (error) {
-      console.warn(`⚠️ Не удалось сохранить кэш: ${error.message}`);
-      return false;
-    }
+export function tryRestoreFileFromCache(cacheFileName, restoreToPath) {
+  const cacheFilePath = resolve(CACHE_PATH, cacheFileName);
+  const targetPath = resolve(restoreToPath);
+
+  if (existsSync(cacheFilePath)) {
+    copyFileSync(cacheFilePath, targetPath);
+    return true;
   }
+
+  return false;
+}
+
+/**
+ * Сохраняет файл в кеш, удалив все старые файлы с таким же префиксом до и с `|`.
+ * Например: для `fb2--book1.md-|-v1--hash.fb2` → префикс: `fb2--book1.md-|`
+ * Удаляет все файлы, начинающиеся с этого префикса.
+ * 
+ * @param {string} filePath - Путь к исходному файлу.
+ * @param {string} cacheFileName - Имя файла в кеше: например, fb2--book1.md-|-v1--abc.fb2
+ * @returns {boolean} true, если успешно.
+ */
+export function saveFileToCache(filePath, cacheFileName) {
+  const sourcePath = resolve(filePath);
+  const cacheDir = resolve(CACHE_PATH);
+  const cacheFilePath = join(cacheDir, cacheFileName);
+
+  // Находим позицию символа '|'
+  const pipeIndex = cacheFileName.indexOf('|');
+  if (pipeIndex === -1) {
+    console.error(`❌ Имя файла не содержит символ "|": ${cacheFileName}`);
+    return false;
+  }
+
+  // Берём всё, что до `|` включительно — это наш префикс
+  const prefix = cacheFileName.slice(0, pipeIndex + 1); // +1 чтобы включить `|`
+  const files = readdirSync(cacheDir);
+
+  try {
+    // Удаляем все файлы, начинающиеся с этого префикса
+    for (const file of files) {
+      if (file.startsWith(prefix)) {
+        const fullPath = join(cacheDir, file);
+        unlinkSync(fullPath);
+        console.log(`🗑️ Удалён старый кеш-файл: ${file}`);
+      }
+    }
+
+    // Сохраняем новый файл
+    copyFileSync(sourcePath, cacheFilePath);
+    console.log(`✅ Сохранён новый кеш-файл: ${cacheFileName}`);
+    return true;
+  } catch (error) {
+    console.error(`❌ Ошибка при сохранении в кеш: ${error.message}`);
+    return false;
+  }
+}

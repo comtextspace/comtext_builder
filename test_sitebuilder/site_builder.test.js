@@ -5,15 +5,6 @@ import path from "path";
 import { jest } from "@jest/globals"; // Импортируем jest для ESM
 import readDir from "fs-readdir-recursive";
 
-// Используем jest.unstable_mockModule для ESM
-// ВАЖНО: Это должно быть до импорта тестируемого модуля
-jest.unstable_mockModule("../source/cache.js", () => ({
-  // Экспортируем функции как именованные exports
-  tryRestoreFileFromCache: jest.fn().mockResolvedValue(false),
-  saveFileToCache: jest.fn().mockResolvedValue(false),
-  // Если бы у cache.js был экспорт по умолчанию, нужно было бы добавить default: ...
-}));
-
 // Следующий код подменяет функцию конвертации даты в adm-zip
 // чтобы архив формировался одинаково независимо от таймзоны ПК
 
@@ -60,7 +51,9 @@ test("buildSite", async () => {
     "./test_sitebuilder/dest/docs/.vuepress/config.json"
   );
 
-  await build("./test_sitebuilder/source/", "./test_sitebuilder/dest/");
+  await build("./test_sitebuilder/source/", 
+              "./test_sitebuilder/dest/", 
+              "./test_sitebuilder/export-cache/");
 
   const foundFiles = readDir("./test_sitebuilder/dest_correct", () => true);
 
