@@ -1,7 +1,8 @@
-import { existsSync, mkdirSync, copyFileSync, readdirSync, unlinkSync } from 'fs';
-import { resolve, join } from 'path';
+import { existsSync, mkdirSync, copyFileSync, readdirSync, unlinkSync } from "fs";
+import { resolve, join } from "path";
 
 let CACHE_PATH;
+const actualFiles = [];
 
 export function initCache(cachePath) {
   CACHE_PATH = cachePath;
@@ -24,6 +25,7 @@ export function tryRestoreFileFromCache(cacheFileName, restoreToPath) {
 
   if (existsSync(cacheFilePath)) {
     copyFileSync(cacheFilePath, targetPath);
+    actualFiles.push(cacheFileName);
     return true;
   }
 
@@ -31,9 +33,7 @@ export function tryRestoreFileFromCache(cacheFileName, restoreToPath) {
 }
 
 /**
- * Сохраняет файл в кеш, удалив все старые файлы с таким же префиксом до и с `|`.
- * Например: для `fb2--book1.md-|-v1--hash.fb2` → префикс: `fb2--book1.md-|`
- * Удаляет все файлы, начинающиеся с этого префикса.
+ * Сохраняет файл в кеш.
  * 
  * @param {string} filePath - Путь к исходному файлу.
  * @param {string} cacheFileName - Имя файла в кеше: например, fb2--book1.md-|-v1--abc.fb2
@@ -44,33 +44,38 @@ export function saveFileToCache(filePath, cacheFileName) {
   const cacheDir = resolve(CACHE_PATH);
   const cacheFilePath = join(cacheDir, cacheFileName);
 
-  // Находим позицию символа '|'
-  const pipeIndex = cacheFileName.indexOf('|');
-  if (pipeIndex === -1) {
-    console.error(`❌ Имя файла не содержит символ "|": ${cacheFileName}`);
-    return false;
-  }
-
-  // Берём всё, что до `|` включительно — это наш префикс
-  const prefix = cacheFileName.slice(0, pipeIndex + 1); // +1 чтобы включить `|`
-  const files = readdirSync(cacheDir);
-
   try {
-    // Удаляем все файлы, начинающиеся с этого префикса
-    for (const file of files) {
-      if (file.startsWith(prefix)) {
-        const fullPath = join(cacheDir, file);
-        unlinkSync(fullPath);
-        console.log(`🗑️ Удалён старый кеш-файл: ${file}`);
-      }
-    }
-
     // Сохраняем новый файл
     copyFileSync(sourcePath, cacheFilePath);
+    actualFiles.push(cacheFileName);
     console.log(`✅ Сохранён новый кеш-файл: ${cacheFileName}`);
     return true;
   } catch (error) {
     console.error(`❌ Ошибка при сохранении в кеш: ${error.message}`);
     return false;
+  }
+}
+
+/**
+ * Удаляет все файлы в каталоге CACHE_PATH, кроме перечисленных в actualFiles.
+ * @param {string} cachePath - Путь к кеш-каталогу.
+ * @param {string[]} actualFiles - Массив имён файлов, которые нужно сохранить (например: ['book1.fb2', 'book2.epub']).
+ */
+export function cleanupOldCache() {
+  const fullPath = resolve(CACHE_PATH);
+
+  try {
+    const files = readdirSync(fullPath);
+
+    for (const file of files) {
+      // Если файла нет в списке разрешённых — удаляем
+      if (!actualFiles.includes(file)) {
+        const filePath = join(fullPath, file);
+        unlinkSync(filePath);
+        console.log(`🗑️ Удалён файл: ${file}`);
+      }
+    }
+  } catch (error) {
+    console.error(`❌ Ошибка при очистке кеша: ${error.message}`);
   }
 }

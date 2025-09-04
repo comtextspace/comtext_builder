@@ -1,14 +1,13 @@
 import fs from "fs";
 import path from "path";
-import { createHash } from 'crypto';
+import { createHash } from "crypto";
 
 import YAML from "yaml";
 import _ from "lodash";
 import AdmZip from "adm-zip";
 import { execSync } from "child_process";
 
-import { isRunningInGitHubActions } from "./utils.js";
-import { tryRestoreFileFromCache, saveFileToCache, initCache } from "./cache.js";
+import { tryRestoreFileFromCache, saveFileToCache, initCache, cleanupOldCache } from "./cache.js";
 
 const cacheId = 1;
 
@@ -31,7 +30,7 @@ const zipFileDate = new Date(Date.UTC(2020, 0, 1, 0, 0, 0));
 let sourceDir;
 
 const getHash = (text) => 
-  createHash('sha256').update(text, 'utf8').digest('hex');
+  createHash("sha256").update(text, "utf8").digest("hex");
 
 const readYamlFile = (filename) => {
   const file = fs.readFileSync(filename, "utf-8");
@@ -161,27 +160,21 @@ const moveBookMd = (bookMdFilename) => {
   const fb2FilePath = path.join(destFilesDir, 
     changeFileExtension(bookBasename, ".fb2")
   );
-  
-  const fb2Timer = startTimer();
 
   const sourceHash = getHash(bookContentComtextForConvert);
+
+  
+  const fb2Timer = startTimer();
 
   let loadedFromCache = false;
   const fb2CacheFileName = `fb2--${bookBasenameWithoutExt}-|-${cacheId}--${sourceHash}.fb2`;
 
-  if (isRunningInGitHubActions()) {
-    loadedFromCache = tryRestoreFileFromCache(fb2CacheFileName, fb2FilePath);
-    if (loadedFromCache) {
-      console.log("Loaded from cache");
-    }
-  }
-
-  if (!loadedFromCache) {
+  loadedFromCache = tryRestoreFileFromCache(fb2CacheFileName, fb2FilePath);
+  if (loadedFromCache) {
+    console.log("Loaded from cache");
+  } else {
     exportFb2(destCtFileForConvertPath, fb2FilePath, destPublicDir);
-
-    if (isRunningInGitHubActions()) {
-       saveFileToCache(fb2FilePath, fb2CacheFileName);
-    }
+    saveFileToCache(fb2FilePath, fb2CacheFileName);
   }
   
   endTimer(fb2Timer);
@@ -191,14 +184,19 @@ const moveBookMd = (bookMdFilename) => {
   const epubFilePath = path.join(destFilesDir, 
     changeFileExtension(bookBasename, ".epub")
   );  
-  
+
   const epubTimer = startTimer();
+  
+  loadedFromCache = false;
+  const epubCacheFileName = `epub--${bookBasenameWithoutExt}-|-${cacheId}--${sourceHash}.epub`;
 
-  if (isRunningInGitHubActions()) {
-    //console.log('isRunningInGitHubActions');
+  loadedFromCache = tryRestoreFileFromCache(epubCacheFileName, epubFilePath);
+  if (loadedFromCache) {
+    console.log("Loaded from cache");
+  } else {
+    exportEpub(destCtFileForConvertPath, epubFilePath, destPublicDir);
+    saveFileToCache(epubFilePath, epubCacheFileName);
   }
-
-  exportEpub(destCtFileForConvertPath, epubFilePath, destPublicDir);
 
   endTimer(epubTimer);    
 };
@@ -364,6 +362,8 @@ const build = (source = "..", dest = ".", cachePath) => {
     console.log(err);
     process.exit(1);
   }
+
+  cleanupOldCache();
 };
 
 export { build };

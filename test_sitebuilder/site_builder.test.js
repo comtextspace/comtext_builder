@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 
 // 3-rd paty
-import { jest } from "@jest/globals"; // Импортируем jest для ESM
 import readDir from "fs-readdir-recursive";
 
 // Следующий код подменяет функцию конвертации даты в adm-zip
