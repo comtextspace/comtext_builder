@@ -10,7 +10,7 @@ lang: ru-RU
 
 ![cover](/img/book_third.png)
 
-[[TOC]]
+<Toc4 />
 
 Текст третьей книги
 

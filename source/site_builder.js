@@ -122,7 +122,12 @@ const moveBookMd = (bookMdFilename) => {
 
   fs.writeFileSync(destBookPath, preparedBookContent);
 
-  const bookContentComtext = bookContent.replaceAll("](/img/", "](img/");
+  const bookContentComtext = bookContent
+    .replaceAll("](/img/", "](img/")
+    .replaceAll("\n<Toc2 />\n", "")
+    .replaceAll("\n<Toc3 />\n", "")
+    .replaceAll("\n<Toc4 />\n", "");
+
   fs.writeFileSync(destCtFilePath, bookContentComtext);
 
   const bookContentComtextForConvert = bookContentComtext
@@ -131,7 +136,7 @@ const moveBookMd = (bookMdFilename) => {
     // 2. Удаляем [# N], если оно окружено пробелами (внутри строки)
     .replace(/ \[#\s*\d+\] /g, " ")
     // 3. Удаляем любые оставшиеся вхождения [# N] (на случай, если что-то пропустили)
-    .replace(/\[#\s*\d+\]/g, "");
+    .replace(/\[#\s*\d+\]/g, "");  
 
   fs.writeFileSync(destCtFileForConvertPath, bookContentComtextForConvert);
 

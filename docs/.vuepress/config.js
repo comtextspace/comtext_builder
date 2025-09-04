@@ -4,6 +4,7 @@ import path from "path";
 import { defaultTheme } from "@vuepress/theme-default";
 import { viteBundler } from "@vuepress/bundler-vite";
 import { slugify as defaultSlugify } from "@mdit-vue/shared";
+import { tocPlugin } from "@vuepress/plugin-toc";
 
 import md_table from "markdown-it-multimd-table";
 import md_katex from "@traptitech/markdown-it-katex";
@@ -115,6 +116,10 @@ export default {
       strict: "warn"
     });
   },
+  plugins: [
+    tocPlugin({
+    })
+  ],
 };
 
 // Обработчик вызывается при появлении ошибки при обработке формы KaTeX
