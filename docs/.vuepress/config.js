@@ -88,6 +88,9 @@ export default {
     sidebar: false,
     contributors: false,
     lastUpdatedText: "Последниее изменение",
+    navbar: [
+      { text: "Обновления в TG", link: "https://t.me/pensadoj" },
+    ],
   }),
 
   markdown: {

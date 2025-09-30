@@ -44,7 +44,7 @@ export default {
 
 <template>
   <ParentLayout>
-    <template #navbar-before>
+    <template #navbar-after>
       <div id="pn-button" title="Вкл/выкл отображение номеров страниц." v-on:click="showPageNumbersButtonClick">PN</div>
     </template>
   </ParentLayout>
