@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 
+import { jest } from "@jest/globals";
+
 // 3-rd paty
 import readDir from "fs-readdir-recursive";
 
@@ -29,6 +31,15 @@ utils.fromDate2DOS = function (val) {
 };
 
 // ----------- конец замены функции из модуля admZip
+
+beforeEach(() => {
+  jest.useFakeTimers();
+  jest.setSystemTime(new Date("2023-01-01T12:00:00Z"));
+});
+
+afterEach(() => {
+  jest.useRealTimers();
+});
 
 test("buildSite", async () => {
   const { build } = await import("../source/site_builder.js");

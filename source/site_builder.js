@@ -6,8 +6,10 @@ import YAML from "yaml";
 import _ from "lodash";
 import AdmZip from "adm-zip";
 import { execSync } from "child_process";
+import matter from "gray-matter";
 
 import { tryRestoreFileFromCache, saveFileToCache, initCache, cleanupOldCache } from "./cache.js";
+import { addBookToOPDS, saveOPDS } from "./opdsBuilder.js";
 
 const cacheId = 1;
 
@@ -203,7 +205,28 @@ const moveBookMd = (bookMdFilename) => {
     saveFileToCache(epubFilePath, epubCacheFileName);
   }
 
-  endTimer(epubTimer);    
+  endTimer(epubTimer);
+
+  const { data } = matter(bookContent);
+
+  if (data.title) {
+  const opdsTitle = data.title;
+  let opdsAuthor = "";
+ 
+  if (data.author) {
+    if (Array.isArray(data.author)) {
+      // Несколько авторов — соединяем через запятую
+      opdsAuthor = data.author.join(", ");
+    } else {
+      // Один автор — просто используем строку
+      opdsAuthor = data.author;
+    }
+  }
+
+  const opdsFb2Path = "files/" + changeFileExtension(bookBasename, ".fb2");
+
+  addBookToOPDS(opdsTitle, opdsAuthor, opdsFb2Path);
+  }
 };
 
 // Функция для запуска таймера
@@ -362,6 +385,9 @@ const build = (source = "..", dest = ".", cachePath) => {
     
     movePages();
     moveBooks();
+    
+    saveOPDS(path.join(destPublicDir, "catalog.opds"), config.vuepress.title);
+
     updateVuepressConfig();
   } catch (err) {
     console.log(err);

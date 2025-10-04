@@ -18,10 +18,12 @@
     "@vuepress/theme-default": "^2.0.0-rc.112",
     "eslint": "^9.32.0",
     "fs-readdir-recursive": "^1.1.0",
+    "gray-matter": "^4.0.3",
     "jest": "^27.2.4",
     "markdown-it-attrs": "^4.3.1",
     "markdown-it-footnote": "^3.0.3",
     "markdown-it-multimd-table": "^4.1.1",
+    "opds": "^2.0.0",
     "sass-embedded": "^1.86.3",
     "vuepress": "^2.0.0-rc.25"
   },

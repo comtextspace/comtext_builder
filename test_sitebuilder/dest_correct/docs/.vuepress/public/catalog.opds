@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/terms/" xmlns:opds="http://opds-spec.org/2010/catalog">
+  <title>Библиотека</title>
+  <entry>
+    <title>Тестовая книга</title>
+    <updated>2023-01-01T12:00:00.000Z</updated>
+    <link href="files/book_first.fb2" rel="http://opds-spec.org/acquisition/open-access" type="application/fb2"/>
+  </entry>
+  <entry>
+    <title>Вторая книга</title>
+    <updated>2023-01-01T12:00:00.000Z</updated>
+    <link href="files/book_second.fb2" rel="http://opds-spec.org/acquisition/open-access" type="application/fb2"/>
+  </entry>
+  <entry>
+    <title>Третья книга</title>
+    <updated>2023-01-01T12:00:00.000Z</updated>
+    <link href="files/book_third.fb2" rel="http://opds-spec.org/acquisition/open-access" type="application/fb2"/>
+  </entry>
+</feed>
