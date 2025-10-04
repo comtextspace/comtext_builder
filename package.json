@@ -25,6 +25,7 @@
     "markdown-it-multimd-table": "^4.1.1",
     "opds": "^2.0.0",
     "sass-embedded": "^1.86.3",
+    "transliteration": "^2.3.5",
     "vuepress": "^2.0.0-rc.25"
   },
   "scripts": {

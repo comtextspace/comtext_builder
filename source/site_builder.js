@@ -7,6 +7,7 @@ import _ from "lodash";
 import AdmZip from "adm-zip";
 import { execSync } from "child_process";
 import matter from "gray-matter";
+import { transliterate } from 'transliteration';
 
 import { tryRestoreFileFromCache, saveFileToCache, initCache, cleanupOldCache } from "./cache.js";
 import { addBookToOPDS, saveOPDS } from "./opdsBuilder.js";
@@ -168,6 +169,10 @@ const moveBookMd = (bookMdFilename) => {
     changeFileExtension(bookBasename, ".fb2")
   );
 
+  const fb2FilePathTrans = path.join(destFilesDir, 
+    changeFileExtension(transliterate(bookBasename), ".fb2")
+  );
+
   const sourceHash = getHash(bookContentComtextForConvert);
 
   
@@ -183,6 +188,8 @@ const moveBookMd = (bookMdFilename) => {
     exportFb2(destCtFileForConvertPath, fb2FilePath, destPublicDir);
     saveFileToCache(fb2FilePath, fb2CacheFileName);
   }
+
+  fs.copyFileSync(fb2FilePath, fb2FilePathTrans);
   
   endTimer(fb2Timer);
 
@@ -218,7 +225,7 @@ const moveBookMd = (bookMdFilename) => {
     opdsAuthors = data.author.map(name => ({ name }));
   }
 
-  const opdsFb2Path = "files/" + encodeURIComponent(changeFileExtension(bookBasename, ".fb2"));
+  const opdsFb2Path = "files/" + changeFileExtension(transliterate(bookBasename), ".fb2");
 
   addBookToOPDS(opdsTitle, opdsAuthors, opdsFb2Path);
   }
