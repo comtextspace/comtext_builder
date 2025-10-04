@@ -5,15 +5,27 @@
     <title>Тестовая книга</title>
     <updated>2023-01-01T12:00:00.000Z</updated>
     <link href="files/book_first.fb2" rel="http://opds-spec.org/acquisition/open-access" type="application/fb2"/>
+    <author>
+      <name>Иван Васильевич Петров</name>
+    </author>
+    <author>
+      <name>Борис Иванов</name>
+    </author>
   </entry>
   <entry>
     <title>Вторая книга</title>
     <updated>2023-01-01T12:00:00.000Z</updated>
     <link href="files/book_second.fb2" rel="http://opds-spec.org/acquisition/open-access" type="application/fb2"/>
+    <author>
+      <name>Аристотель</name>
+    </author>
   </entry>
   <entry>
     <title>Третья книга</title>
     <updated>2023-01-01T12:00:00.000Z</updated>
     <link href="files/book_third.fb2" rel="http://opds-spec.org/acquisition/open-access" type="application/fb2"/>
+    <author>
+      <name>Петров Марк Анатольевич</name>
+    </author>
   </entry>
 </feed>

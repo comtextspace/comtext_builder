@@ -11,13 +11,11 @@ const books = [];
  * @param {string} author — имя автора
  * @param {string} fb2Path — путь к .fb2 файлу (относительный или абсолютный URL)
  */
-export function addBookToOPDS(title, author, fb2Path) {
+export function addBookToOPDS(title, authors, fb2Path) {
     books.push({
         title: title,
         updated: new Date(),
-        author: {
-            name: author
-        },
+        authors: authors,
         links: [
             {
                 rel: "acquisition/open-access",
@@ -36,9 +34,6 @@ export function addBookToOPDS(title, author, fb2Path) {
 export function saveOPDS(fileName, title) {
     const xml = opds.create({
         title: title,
-        author: {
-            name: "Unknown"
-        },
         books: books
     });
 

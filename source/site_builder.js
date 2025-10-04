@@ -211,21 +211,16 @@ const moveBookMd = (bookMdFilename) => {
 
   if (data.title) {
   const opdsTitle = data.title;
-  let opdsAuthor = "";
+
+  let opdsAuthors = [];
  
   if (data.author) {
-    if (Array.isArray(data.author)) {
-      // Несколько авторов — соединяем через запятую
-      opdsAuthor = data.author.join(", ");
-    } else {
-      // Один автор — просто используем строку
-      opdsAuthor = data.author;
-    }
+    opdsAuthors = data.author.map(name => ({ name }));
   }
 
-  const opdsFb2Path = "files/" + changeFileExtension(bookBasename, ".fb2");
+  const opdsFb2Path = "files/" + encodeURIComponent(changeFileExtension(bookBasename, ".fb2"));
 
-  addBookToOPDS(opdsTitle, opdsAuthor, opdsFb2Path);
+  addBookToOPDS(opdsTitle, opdsAuthors, opdsFb2Path);
   }
 };
 
