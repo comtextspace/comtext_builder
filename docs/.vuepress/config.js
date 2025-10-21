@@ -33,7 +33,7 @@ const makeRevisionmeHeader = (config) => {
   let contextWidget = 0;
 
   if (config.revisionmeContextWidget) {
-    floatingBtn = config.revisionmeContextWidget;
+    contextWidget = config.revisionmeContextWidget;
   }
 
   return [
