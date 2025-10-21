@@ -359,6 +359,10 @@ const updateVuepressConfig = () => {
     vuepressConfig.revisionmeProjectId = config.vuepress.revisionmeProjectId;
   }
 
+  if (_.has(config, "vuepress.revisionmeFloatingBtn")) {
+    vuepressConfig.revisionmeFloatingBtn = config.vuepress.revisionmeFloatingBtn;
+  }
+
   fs.writeFileSync(vuepressConfigPath, JSON.stringify(vuepressConfig));
 };
 

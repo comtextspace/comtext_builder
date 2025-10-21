@@ -24,6 +24,12 @@ const makeRevisionmeHeader = (config) => {
     return [];
   }
 
+  let floatingBtn = 0;
+
+  if (!config.revisionmeFloatingBtn) {
+    floatingBtn = config.revisionmeFloatingBtn;
+  }
+
   return [
     [
       "script",
@@ -34,7 +40,7 @@ const makeRevisionmeHeader = (config) => {
 			locale: 'ru',
 			contextWidget: 0,
 			embedBtn: 0,
-			floatingBtn: 0,
+			floatingBtn: ${floatingBtn},
 			floatingBtnPosition: 'left',
 			floatingBtnStyle: 'light',
 			};

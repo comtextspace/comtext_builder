@@ -2,6 +2,7 @@ vuepress:
   title: "Библиотека"
   base: "/"
   revisionmeProjectId: "testProjectId"
+  revisionmeFloatingBtn: "1"
   markdown_toc_level: [2, 3]
 
 pages:
