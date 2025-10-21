@@ -26,7 +26,7 @@ const makeRevisionmeHeader = (config) => {
 
   let floatingBtn = 0;
 
-  if (!config.revisionmeFloatingBtn) {
+  if (config.revisionmeFloatingBtn) {
     floatingBtn = config.revisionmeFloatingBtn;
   }
 
