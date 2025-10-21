@@ -363,6 +363,10 @@ const updateVuepressConfig = () => {
     vuepressConfig.revisionmeFloatingBtn = config.vuepress.revisionmeFloatingBtn;
   }
 
+  if (_.has(config, "vuepress.revisionmeContextWidget")) {
+    vuepressConfig.revisionmeContextWidget = config.vuepress.revisionmeContextWidget;
+  }
+
   fs.writeFileSync(vuepressConfigPath, JSON.stringify(vuepressConfig));
 };
 

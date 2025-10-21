@@ -30,6 +30,12 @@ const makeRevisionmeHeader = (config) => {
     floatingBtn = config.revisionmeFloatingBtn;
   }
 
+  let contextWidget = 0;
+
+  if (config.revisionmeContextWidget) {
+    floatingBtn = config.revisionmeContextWidget;
+  }
+
   return [
     [
       "script",
@@ -38,7 +44,7 @@ const makeRevisionmeHeader = (config) => {
 	    var __rm__config = {
 			projectId: '${config.revisionmeProjectId}',
 			locale: 'ru',
-			contextWidget: 0,
+			contextWidget: ${contextWidget},
 			embedBtn: 0,
 			floatingBtn: ${floatingBtn},
 			floatingBtnPosition: 'left',
