@@ -1,4 +1,5 @@
 import { defineClientConfig } from '@vuepress/client'
+import { onMounted } from 'vue'
 import Layout from './layouts/Layout.vue'
 import Toc2 from './components/Toc2.vue'
 import Toc3 from './components/Toc3.vue'
@@ -6,6 +7,8 @@ import Toc4 from './components/Toc4.vue'
 
 // Функция для добавления отступов к разрядке
 function applyRazradkaMargins() {
+  if (typeof document === 'undefined') return;
+
   document.querySelectorAll('p, div, li, section').forEach(block => {
     const nodes = block.childNodes;
     let hasTextBefore = false;
@@ -32,11 +35,13 @@ export default defineClientConfig({
     app.component('Toc3', Toc3)
     app.component('Toc4', Toc4)
 
-    // Добавляем хук, который срабатывает при навигации
-    router.afterEach(() => {
-      setTimeout(() => {
-        applyRazradkaMargins();
-      }, 100);
-    });
+    // Запускаем только в браузере
+    if (typeof window !== 'undefined') {
+      router.afterEach(() => {
+        setTimeout(() => {
+          applyRazradkaMargins();
+        }, 100);
+      });
+    }
   },
 })
