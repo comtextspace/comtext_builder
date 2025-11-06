@@ -42,6 +42,11 @@
     margin-right: -0.4em;
 }
 
+/* Отступ будет добавлен только если span имеет класс 'after-text' */
+.md-it-razradka.after-text {
+  margin-left: 0.4em;
+}
+
 .vp-page a {
   text-decoration: none !important; 
 }
