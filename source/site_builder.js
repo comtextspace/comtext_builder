@@ -285,7 +285,7 @@ for (const entry of zip.getEntries()) {
 function exportFb2(ctFilePath, fb2FilePath, resourcePath) {
   const pandocCommand =
     `pandoc ${ctFilePath} ` +
-    `-s -f markdown+escaped_line_breaks -t fb2 -o ${fb2FilePath} ` +
+    `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
     `--resource-path=${resourcePath} ` +
     `--lua-filter=source/pandoc/remove-cover.lua ` +
     `--lua-filter=source/pandoc/remove-toc.lua`;
@@ -305,7 +305,7 @@ function exportFb2(ctFilePath, fb2FilePath, resourcePath) {
 function exportEpub(ctFilePath, epubFilePath, resourcePath) {
   const pandocCommand =
   `pandoc ${ctFilePath} ` +
-  `-s -f markdown+escaped_line_breaks -t epub3 -o ${epubFilePath} ` +
+  `-s -f markdown -t epub3 -o ${epubFilePath} ` +
   `--resource-path=${resourcePath} ` +
   `--toc ` +
   `--standalone ` +
