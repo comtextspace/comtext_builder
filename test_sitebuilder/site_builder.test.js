@@ -32,6 +32,9 @@ utils.fromDate2DOS = function (val) {
 
 // ----------- конец замены функции из модуля admZip
 
+
+import { build } from "../source/site_builder.js";
+
 beforeEach(() => {
   jest.useFakeTimers();
   jest.setSystemTime(new Date("2023-01-01T12:00:00Z"));
@@ -42,7 +45,6 @@ afterEach(() => {
 });
 
 test("buildSite", async () => {
-  const { build } = await import("../source/site_builder.js");
 
   fs.rmSync("./test_sitebuilder/dest", {
     recursive: true,
@@ -61,9 +63,9 @@ test("buildSite", async () => {
     "./test_sitebuilder/dest/docs/.vuepress/config.json"
   );
 
-  await build("./test_sitebuilder/source/", 
-              "./test_sitebuilder/dest/", 
-              "./test_sitebuilder/export-cache/");
+   build("./test_sitebuilder/source/", 
+         "./test_sitebuilder/dest/", 
+         "./test_sitebuilder/export-cache/");
 
   const foundFiles = readDir("./test_sitebuilder/dest_correct", () => true);
 
