@@ -11,6 +11,7 @@ import { transliterate } from 'transliteration';
 
 import { tryRestoreFileFromCache, saveFileToCache, initCache, cleanupOldCache } from "./cache.js";
 import { addBookToOPDS, saveOPDS } from "./opdsBuilder.js";
+import { convertPoemBlocks } from "./utils.js";
 
 const cacheId = 1;
 
@@ -121,7 +122,9 @@ const moveBookMd = (bookMdFilename) => {
 
 
   const bookContent = concatFiles([bookFilename]);
+  
   let preparedBookContent = bookContent.replaceAll("![cover](", "![](");
+  preparedBookContent = convertPoemBlocks(preparedBookContent);
 
   fs.writeFileSync(destBookPath, preparedBookContent);
 
