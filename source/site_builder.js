@@ -106,6 +106,7 @@ const moveBookMd = (bookMdFilename) => {
   const bookDir = path.join(sourceDir, path.dirname(bookMdFilename));
   const bookBasename = path.basename(bookMdFilename);
   const bookBasenameWithoutExt = path.basename(bookMdFilename, path.extname(bookMdFilename));
+  const translitBookBasenameWithoutExt = transliterate(bookBasenameWithoutExt)
   const sourceImagesPath = path.join(bookDir, IMAGE_DIR);
 
   const destBookPath = path.join(destMdDir, bookBasename);
@@ -183,8 +184,8 @@ const moveBookMd = (bookMdFilename) => {
   const fb2Timer = startTimer();
 
   let loadedFromCache = false;
-  const fb2CacheFileName = `fb2--${bookBasenameWithoutExt}-|-${cacheId}--${sourceHash}.fb2`;
-
+  const fb2CacheFileName = `fb2--${translitBookBasenameWithoutExt}-|-${cacheId}--${sourceHash}.fb2`;
+  
   loadedFromCache = tryRestoreFileFromCache(fb2CacheFileName, fb2FilePath);
   if (loadedFromCache) {
     console.log("Loaded from cache");
@@ -206,7 +207,7 @@ const moveBookMd = (bookMdFilename) => {
   const epubTimer = startTimer();
   
   loadedFromCache = false;
-  const epubCacheFileName = `epub--${bookBasenameWithoutExt}-|-${cacheId}--${sourceHash}.epub`;
+  const epubCacheFileName = `epub--${translitBookBasenameWithoutExt}-|-${cacheId}--${sourceHash}.epub`;
 
   loadedFromCache = tryRestoreFileFromCache(epubCacheFileName, epubFilePath);
   if (loadedFromCache) {
