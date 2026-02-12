@@ -307,6 +307,15 @@ function exportFb2(ctFilePath, fb2FilePath, resourcePath) {
 
   const sedCommand2 = `sed -i 's|<program-used>.*</program-used>|<program-used>${programUsed}</program-used>|' "${fb2FilePath}"`;
   execSync(sedCommand2);
+
+  const sedCommand3 = `sed -i '/<program-used>/a\\\\  <version>${commitHash}</version>' "${fb2FilePath}"`;
+  execSync(sedCommand3);
+
+/*
+TODO
+# Добавляем <id> после <version>
+sed -i '/<version>/a\  <id>comtext-2024-abc123</id>' book.fb2
+*/
 }
 
 function exportEpub(ctFilePath, epubFilePath, resourcePath) {
@@ -377,7 +386,7 @@ const updateVuepressConfig = () => {
   fs.writeFileSync(vuepressConfigPath, JSON.stringify(vuepressConfig));
 };
 
-const build = (source = "..", dest = ".", cachePath) => {
+const build = (source = "..", dest = ".", cachePath, commitHash) => {
   sourceDir = source;
   workDir = dest;
 
