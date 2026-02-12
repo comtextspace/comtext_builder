@@ -65,7 +65,8 @@ test("buildSite", async () => {
 
    build("./test_sitebuilder/source/", 
          "./test_sitebuilder/dest/", 
-         "./test_sitebuilder/export-cache/");
+         "./test_sitebuilder/export-cache/",
+         "a1b2c3d4e5f6789012345678901234567890abcd");
 
   const foundFiles = readDir("./test_sitebuilder/dest_correct", () => true);
 

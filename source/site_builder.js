@@ -21,6 +21,7 @@ let destPublicDir;
 let destMdDir;
 let destFilesDir;
 let vuepressConfigPath;
+let commitHash;
 
 const DEBUG = false;
 
@@ -308,8 +309,8 @@ function exportFb2(ctFilePath, fb2FilePath, resourcePath) {
   const sedCommand2 = `sed -i 's|<program-used>.*</program-used>|<program-used>${programUsed}</program-used>|' "${fb2FilePath}"`;
   execSync(sedCommand2);
 
-  const sedCommand3 = `sed -i '/<program-used>/a\\\\  <version>${commitHash}</version>' "${fb2FilePath}"`;
-  execSync(sedCommand3);
+const sedCommand3 = `sed -i 's/<\\/document-info>/<version>${commitHash}<\\/version><\\/document-info>/' "${fb2FilePath}"`;
+execSync(sedCommand3);
 
 /*
 TODO
@@ -386,9 +387,10 @@ const updateVuepressConfig = () => {
   fs.writeFileSync(vuepressConfigPath, JSON.stringify(vuepressConfig));
 };
 
-const build = (source = "..", dest = ".", cachePath, commitHash) => {
+const build = (source = "..", dest = ".", cachePath, commitHashRepos) => {
   sourceDir = source;
   workDir = dest;
+  commitHash = commitHashRepos;
 
   initCache(cachePath);
 
