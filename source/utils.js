@@ -49,3 +49,14 @@ export function convertPoemBlocks(text) {
 
   return result.join('\n');
 }
+
+// Функция для запуска таймера
+export function startTimer() {
+  return Date.now();
+}
+
+// Функция для завершения таймера и вывода результата
+export function endTimer(start) {
+  const end = Date.now();
+  console.log(`Операция заняла ${end - start} мс`);
+}

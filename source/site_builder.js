@@ -3,15 +3,14 @@ import path from "path";
 import { createHash } from "crypto";
 
 import YAML from "yaml";
-import _ from "lodash";
 import AdmZip from "adm-zip";
-import { execSync } from "child_process";
 import matter from "gray-matter";
 import { transliterate } from 'transliteration';
 
-import { tryRestoreFileFromCache, saveFileToCache, initCache, cleanupOldCache } from "./cache.js";
+import { initCache, cleanupOldCache } from "./cache.js";
 import { addBookToOPDS, saveOPDS } from "./opdsBuilder.js";
-import { convertPoemBlocks } from "./utils.js";
+import { convertPoemBlocks, startTimer, endTimer } from "./utils.js";
+import { exportFb2WithCache, exportEpubWithCache } from "./exporter.js";
 
 const cacheId = 1;
 
@@ -49,25 +48,28 @@ const readConfig = () => {
 
 let config;
 
-const concatFiles = (sourceFiles) => {
-  const bookContent = sourceFiles.map((filename) =>
-    fs.readFileSync(filename, "utf-8")
-  );
-  return bookContent.join("");
+// Читает содержимое файла (оставлено для совместимости, но используется только для одного файла)
+const readFile = (filename) => {
+  return fs.readFileSync(filename, "utf-8");
 };
 
 const moveFiles = (sourcePath, destPath) => {
-  // console.log('moveFiles ' + sourcePath + ' ' + destPath);
-
-  if (fs.existsSync(sourcePath)) {
-    const images = fs.readdirSync(sourcePath);
-    images.forEach((imageFilename) => {
-      // console.log(imageFilename);
-      
-      const sourceImg = path.join(sourcePath, imageFilename);
-      const destImg = path.join(destPath, imageFilename);
-      fs.copyFileSync(sourceImg, destImg);
+  try {
+    if (!fs.existsSync(sourcePath)) {
+      return;
+    }
+    
+    const files = fs.readdirSync(sourcePath);
+    files.forEach((filename) => {
+      const sourceFile = path.join(sourcePath, filename);
+      const destFile = path.join(destPath, filename);
+      fs.copyFileSync(sourceFile, destFile);
     });
+  } catch (error) {
+    // Игнорируем ошибки доступа к файлам
+    if (DEBUG) {
+      console.error(`Ошибка при копировании файлов из ${sourcePath}:`, error);
+    }
   }
 };
 
@@ -76,28 +78,35 @@ const getMdFilesFromDir = (dirPath, baseDir = sourceDir) => {
   const fullDirPath = path.join(baseDir, dirPath);
   const mdFiles = [];
   
-  if (!fs.existsSync(fullDirPath)) {
-    return mdFiles;
-  }
-  
-  const stats = fs.statSync(fullDirPath);
-  if (!stats.isDirectory()) {
-    return mdFiles;
-  }
-  
-  const entries = fs.readdirSync(fullDirPath);
-  
-  for (const entry of entries) {
-    const entryPath = path.join(fullDirPath, entry);
-    const relativeEntryPath = path.join(dirPath, entry);
-    const entryStats = fs.statSync(entryPath);
-    
-    if (entryStats.isDirectory()) {
-      // Рекурсивно обрабатываем подкаталоги
-      mdFiles.push(...getMdFilesFromDir(relativeEntryPath, baseDir));
-    } else if (entryStats.isFile() && path.extname(entry) === ".md") {
-      mdFiles.push(relativeEntryPath);
+  try {
+    const stats = fs.statSync(fullDirPath);
+    if (!stats.isDirectory()) {
+      return mdFiles;
     }
+    
+    const entries = fs.readdirSync(fullDirPath);
+    
+    for (const entry of entries) {
+      const entryPath = path.join(fullDirPath, entry);
+      const relativeEntryPath = path.join(dirPath, entry);
+      
+      try {
+        const entryStats = fs.statSync(entryPath);
+        
+        if (entryStats.isDirectory()) {
+          // Рекурсивно обрабатываем подкаталоги
+          mdFiles.push(...getMdFilesFromDir(relativeEntryPath, baseDir));
+        } else if (entryStats.isFile() && path.extname(entry) === ".md") {
+          mdFiles.push(relativeEntryPath);
+        }
+      } catch {
+        // Пропускаем файлы, к которым нет доступа
+        continue;
+      }
+    }
+  } catch {
+    // Каталог не существует или нет доступа
+    return mdFiles;
   }
   
   return mdFiles;
@@ -107,34 +116,29 @@ const getMdFilesFromDir = (dirPath, baseDir = sourceDir) => {
 const expandPageOrDir = (pagePath) => {
   const fullPath = path.join(sourceDir, pagePath);
   
-  if (!fs.existsSync(fullPath)) {
-    throw new Error(`Путь не существует: ${pagePath}`);
-  }
-  
-  const stats = fs.statSync(fullPath);
-  
-  if (stats.isFile()) {
-    // Это файл
-    return [pagePath];
-  } else if (stats.isDirectory()) {
-    // Это каталог - получаем все .md файлы
-    return getMdFilesFromDir(pagePath);
-  } else {
-    throw new Error(`Неизвестный тип: ${pagePath}`);
+  try {
+    const stats = fs.statSync(fullPath);
+    
+    if (stats.isFile()) {
+      return [pagePath];
+    } else if (stats.isDirectory()) {
+      return getMdFilesFromDir(pagePath);
+    } else {
+      throw new Error(`Неизвестный тип: ${pagePath}`);
+    }
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      throw new Error(`Путь не существует: ${pagePath}`);
+    }
+    throw error;
   }
 };
 
 const movePages = () => {
-  const allPages = [];
+  const allPages = config.pages.flatMap(pagePath => expandPageOrDir(pagePath));
   
-  // Разворачиваем все пути (файлы и каталоги) в список файлов
-  config.pages.forEach((pagePath) => {
-    allPages.push(...expandPageOrDir(pagePath));
-  });
-  
-  // Обрабатываем все файлы
   allPages.forEach((pageFilename) => {
-    const sourseFilename = path.join(sourceDir, pageFilename);
+    const sourceFilename = path.join(sourceDir, pageFilename);
     const destFilename = path.join(destMdDir, pageFilename);
     
     // Создаем необходимые подкаталоги в dest
@@ -143,7 +147,7 @@ const movePages = () => {
       fs.mkdirSync(destDir, { recursive: true });
     }
 
-    const sourceText = fs.readFileSync(sourseFilename, "utf8");
+    const sourceText = fs.readFileSync(sourceFilename, "utf8");
     const preparedText = sourceText.replaceAll(
       /\[\[files\s+([^\]]+?)\]\]/g,
       (_, filename) => {
@@ -160,10 +164,8 @@ const movePages = () => {
 };
 
 function changeFileExtension(filePath, newExtension) {
-  const dir = path.dirname(filePath);          // Получаем директорию
-  const filename = path.basename(filePath);    // Имя файла с текущим расширением
-  const name = path.parse(filename).name;      // Имя без расширения
-  return path.join(dir, name + newExtension);  // Собираем новый путь
+  const parsed = path.parse(filePath);
+  return path.join(parsed.dir, parsed.name + newExtension);
 }
 
 const moveBookMd = (bookMdFilename) => {
@@ -190,7 +192,7 @@ const moveBookMd = (bookMdFilename) => {
   const destCtZipFilePath = destCtFilePath + ".zip";
 
 
-  const bookContent = concatFiles([bookFilename]);
+  const bookContent = readFile(bookFilename);
   
   let preparedBookContent = bookContent.replaceAll("![cover](", "![](");
   preparedBookContent = convertPoemBlocks(preparedBookContent);
@@ -231,59 +233,26 @@ const moveBookMd = (bookMdFilename) => {
 
   // TODO возможно, нужна возможность отключать экспорт
   // как сделано для yaml конфига
-  // if (!_.has(bookConfig, "export")) {
-  //   return
-  // }
 
-  console.log("Export to fb2");
-
-  const fb2FilePath = path.join(destFilesDir, 
-    changeFileExtension(bookBasename, ".fb2")
-  );
-
-  const fb2FilePathTrans = path.join(destFilesDir, 
-    changeFileExtension(transliterate(bookBasename), ".fb2")
-  );
+  const fb2FilePath = path.join(destFilesDir, changeFileExtension(bookBasename, ".fb2"));
+  const fb2FilePathTrans = path.join(destFilesDir, changeFileExtension(transliterate(bookBasename), ".fb2"));
 
   const sourceHash = getHash(bookContentComtextForConvert);
 
-  
+  console.log("Export to fb2");
   const fb2Timer = startTimer();
-
-  let loadedFromCache = false;
   const fb2CacheFileName = `fb2--${translitBookBasenameWithoutExt}-|-${cacheId}--${sourceHash}.fb2`;
   
-  loadedFromCache = tryRestoreFileFromCache(fb2CacheFileName, fb2FilePath);
-  if (loadedFromCache) {
-    console.log("Loaded from cache");
-  } else {
-    exportFb2(destCtFileForConvertPath, fb2FilePath, destPublicDir);
-    saveFileToCache(fb2FilePath, fb2CacheFileName);
-  }
-
+  exportFb2WithCache(fb2CacheFileName, fb2FilePath, destCtFileForConvertPath, destPublicDir, commitHash, DEBUG);
   fs.copyFileSync(fb2FilePath, fb2FilePathTrans);
-  
   endTimer(fb2Timer);
 
   console.log("Export to epub");
-
-  const epubFilePath = path.join(destFilesDir, 
-    changeFileExtension(bookBasename, ".epub")
-  );  
-
   const epubTimer = startTimer();
-  
-  loadedFromCache = false;
+  const epubFilePath = path.join(destFilesDir, changeFileExtension(bookBasename, ".epub"));
   const epubCacheFileName = `epub--${translitBookBasenameWithoutExt}-|-${cacheId}--${sourceHash}.epub`;
 
-  loadedFromCache = tryRestoreFileFromCache(epubCacheFileName, epubFilePath);
-  if (loadedFromCache) {
-    console.log("Loaded from cache");
-  } else {
-    exportEpub(destCtFileForConvertPath, epubFilePath, destPublicDir);
-    saveFileToCache(epubFilePath, epubCacheFileName);
-  }
-
+  exportEpubWithCache(epubCacheFileName, epubFilePath, destCtFileForConvertPath, destPublicDir);
   endTimer(epubTimer);
 
   const { data } = matter(bookContent);
@@ -302,17 +271,6 @@ const moveBookMd = (bookMdFilename) => {
   addBookToOPDS(opdsTitle, opdsAuthors, opdsFb2Path);
   }
 };
-
-// Функция для запуска таймера
-function startTimer() {
-  return Date.now();
-}
-
-// Функция для завершения таймера и вывода результата
-function endTimer(start) {
-  const end = Date.now();
-  console.log(`Операция заняла ${end - start} мс`);
-}
 
 const zipFiles = (zipFilePath, filePath, imageDir) => { 
   // ZIP --------------------------------
@@ -354,87 +312,19 @@ for (const entry of zip.getEntries()) {
   zip.writeZip(zipFilePath);
 };
 
-function exportFb2(ctFilePath, fb2FilePath, resourcePath) {
-  const pandocCommand =
-    `pandoc ${ctFilePath} ` +
-    `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
-    `--resource-path=${resourcePath} ` +
-    `--lua-filter=source/pandoc/remove-cover.lua ` +
-    `--lua-filter=source/pandoc/remove-toc.lua`;
-
-  const res = execSync(pandocCommand);
-
-  if (DEBUG) {
-    console.log(pandocCommand);
-    console.log("" + res);
-  }
-
-  const sedCommand1 = `sed -i '0,/<title><p>[^<]*<\\/p><\\/title>/s///' "${fb2FilePath}"`;
-  execSync(sedCommand1);
-
-  const programUsed = 'Экспорт из формата Комтекст (https://comtext.space) через Pandoc';
-
-  const sedCommand2 = `sed -i 's|<program-used>.*</program-used>|<program-used>${programUsed}</program-used>|' "${fb2FilePath}"`;
-  execSync(sedCommand2);
-
-const sedCommand3 = `sed -i 's/<\\/document-info>/<version>${commitHash}<\\/version><\\/document-info>/' "${fb2FilePath}"`;
-execSync(sedCommand3);
-
-/*
-TODO
-# Добавляем <id> после <version>
-sed -i '/<version>/a\  <id>comtext-2024-abc123</id>' book.fb2
-*/
-}
-
-function exportEpub(ctFilePath, epubFilePath, resourcePath) {
-  const pandocCommand =
-  `pandoc ${ctFilePath} ` +
-  `-s -f markdown -t epub3 -o ${epubFilePath} ` +
-  `--resource-path=${resourcePath} ` +
-  `--toc ` +
-  `--standalone ` +
-  `--shift-heading-level-by=-1 ` +
-  `--toc-depth=3 ` +
-  `--gladtex ` +
-  `--top-level-division=chapter ` +
-  `--lua-filter=source/pandoc/remove-cover.lua ` +
-  `--lua-filter=source/pandoc/remove-toc.lua`;
-
-  execSync(pandocCommand);
-
-  // Нужно чтобы работали тесты для epub. 
-  // Но они всё равно не работают так как 
-  // внутри генерируются случайные uud
-  // normalizeEpubTimestamps(epubFilePath);
-
-  // console.log(pandocCommand);
-  // console.log('' + res);
-}
-
- 
 const moveBooks = () => {
-  if (config.books === null) {
-    return null;
+  if (!config.books) {
+    return;
   }
   
-  const allBooks = [];
+  const allBooks = config.books.flatMap(bookPath => expandPageOrDir(bookPath));
   
-  // Разворачиваем все пути (файлы и каталоги) в список файлов
-  for (const bookPath of config.books) {
-    allBooks.push(...expandPageOrDir(bookPath));
-  }
-  
-  // Обрабатываем все файлы книг
   for (const bookFilename of allBooks) {
-    const ext = path.extname(bookFilename);
-
-    if (ext == ".md") {
-      moveBookMd(bookFilename);
-    } else {
+    if (path.extname(bookFilename) !== ".md") {
       throw new Error(`Неизвестное расширение файла книги "${bookFilename}"`); 
     }
-  };
+    moveBookMd(bookFilename);
+  }
 };
 
 const updateVuepressConfig = () => {
@@ -442,22 +332,22 @@ const updateVuepressConfig = () => {
     fs.readFileSync(vuepressConfigPath, "utf-8")
   );
 
-  vuepressConfig.title = _.get(config, "vuepress.title", "");
-  vuepressConfig.base = _.get(config, "vuepress.base", "/");
+  vuepressConfig.title = config.vuepress?.title ?? "";
+  vuepressConfig.base = config.vuepress?.base ?? "/";
 
-  if (_.has(config, "vuepress.markdown_toc_level")) {
-    vuepressConfig.markdown_toc_level = _.get(config, "vuepress.markdown_toc_level");
+  if (config.vuepress?.markdown_toc_level !== undefined) {
+    vuepressConfig.markdown_toc_level = config.vuepress.markdown_toc_level;
   }
 
-  if (_.has(config, "vuepress.revisionmeProjectId")) {
+  if (config.vuepress?.revisionmeProjectId !== undefined) {
     vuepressConfig.revisionmeProjectId = config.vuepress.revisionmeProjectId;
   }
 
-  if (_.has(config, "vuepress.revisionmeFloatingBtn")) {
+  if (config.vuepress?.revisionmeFloatingBtn !== undefined) {
     vuepressConfig.revisionmeFloatingBtn = config.vuepress.revisionmeFloatingBtn;
   }
 
-  if (_.has(config, "vuepress.revisionmeContextWidget")) {
+  if (config.vuepress?.revisionmeContextWidget !== undefined) {
     vuepressConfig.revisionmeContextWidget = config.vuepress.revisionmeContextWidget;
   }
 
