@@ -9,6 +9,4 @@ pages:
   - index.md
 
 books:
-  - book/book_first.md
-  - book/book_second.md
-  - book/book_third.md
+  - book

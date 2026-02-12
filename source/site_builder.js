@@ -71,10 +71,77 @@ const moveFiles = (sourcePath, destPath) => {
   }
 };
 
+// Функция для получения всех .md файлов из каталога (рекурсивно)
+const getMdFilesFromDir = (dirPath, baseDir = sourceDir) => {
+  const fullDirPath = path.join(baseDir, dirPath);
+  const mdFiles = [];
+  
+  if (!fs.existsSync(fullDirPath)) {
+    return mdFiles;
+  }
+  
+  const stats = fs.statSync(fullDirPath);
+  if (!stats.isDirectory()) {
+    return mdFiles;
+  }
+  
+  const entries = fs.readdirSync(fullDirPath);
+  
+  for (const entry of entries) {
+    const entryPath = path.join(fullDirPath, entry);
+    const relativeEntryPath = path.join(dirPath, entry);
+    const entryStats = fs.statSync(entryPath);
+    
+    if (entryStats.isDirectory()) {
+      // Рекурсивно обрабатываем подкаталоги
+      mdFiles.push(...getMdFilesFromDir(relativeEntryPath, baseDir));
+    } else if (entryStats.isFile() && path.extname(entry) === ".md") {
+      mdFiles.push(relativeEntryPath);
+    }
+  }
+  
+  return mdFiles;
+};
+
+// Функция для получения списка файлов (файл или все .md из каталога)
+const expandPageOrDir = (pagePath) => {
+  const fullPath = path.join(sourceDir, pagePath);
+  
+  if (!fs.existsSync(fullPath)) {
+    throw new Error(`Путь не существует: ${pagePath}`);
+  }
+  
+  const stats = fs.statSync(fullPath);
+  
+  if (stats.isFile()) {
+    // Это файл
+    return [pagePath];
+  } else if (stats.isDirectory()) {
+    // Это каталог - получаем все .md файлы
+    return getMdFilesFromDir(pagePath);
+  } else {
+    throw new Error(`Неизвестный тип: ${pagePath}`);
+  }
+};
+
 const movePages = () => {
-  config.pages.forEach((pageFilename) => {
+  const allPages = [];
+  
+  // Разворачиваем все пути (файлы и каталоги) в список файлов
+  config.pages.forEach((pagePath) => {
+    allPages.push(...expandPageOrDir(pagePath));
+  });
+  
+  // Обрабатываем все файлы
+  allPages.forEach((pageFilename) => {
     const sourseFilename = path.join(sourceDir, pageFilename);
     const destFilename = path.join(destMdDir, pageFilename);
+    
+    // Создаем необходимые подкаталоги в dest
+    const destDir = path.dirname(destFilename);
+    if (!fs.existsSync(destDir)) {
+      fs.mkdirSync(destDir, { recursive: true });
+    }
 
     const sourceText = fs.readFileSync(sourseFilename, "utf8");
     const preparedText = sourceText.replaceAll(
@@ -350,7 +417,16 @@ const moveBooks = () => {
   if (config.books === null) {
     return null;
   }
-  for (const bookFilename of config.books) {
+  
+  const allBooks = [];
+  
+  // Разворачиваем все пути (файлы и каталоги) в список файлов
+  for (const bookPath of config.books) {
+    allBooks.push(...expandPageOrDir(bookPath));
+  }
+  
+  // Обрабатываем все файлы книг
+  for (const bookFilename of allBooks) {
     const ext = path.extname(bookFilename);
 
     if (ext == ".md") {
