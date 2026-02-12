@@ -300,9 +300,13 @@ function exportFb2(ctFilePath, fb2FilePath, resourcePath) {
     console.log("" + res);
   }
 
-  const sedCommand = `sed '0,/<title><p>[^<]*<\\/p><\\/title>/s///' "${fb2FilePath}" > "${fb2FilePath}.tmp" && mv "${fb2FilePath}.tmp" "${fb2FilePath}"`;
+  const sedCommand1 = `sed -i '0,/<title><p>[^<]*<\\/p><\\/title>/s///' "${fb2FilePath}"`;
+  execSync(sedCommand1);
 
-  execSync(sedCommand);
+  const programUsed = 'Экспорт из формата Комтекст (https://comtext.space) через Pandoc';
+
+  const sedCommand2 = `sed -i 's|<program-used>.*</program-used>|<program-used>${programUsed}</program-used>|' "${fb2FilePath}"`;
+  execSync(sedCommand2);
 }
 
 function exportEpub(ctFilePath, epubFilePath, resourcePath) {
