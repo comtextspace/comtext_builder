@@ -68,6 +68,15 @@ test("buildSite", async () => {
          "./test_sitebuilder/export-cache/",
          "a1b2c3d4e5f6789012345678901234567890abcd");
 
+  // Проверка рекурсивной обработки каталогов: файлы из подкаталогов должны быть обработаны
+  const sourceBookFiles = readDir("./test_sitebuilder/source/book", (file) => file.endsWith(".md"));
+  const destBookFiles = fs.readdirSync("./test_sitebuilder/dest/docs")
+    .filter(file => file.endsWith(".md") && file.startsWith("book_"));
+  
+  // Проверяем, что все файлы из каталога book (включая подкаталоги) обработаны
+  expect(destBookFiles.length).toBeGreaterThanOrEqual(sourceBookFiles.length);
+  expect(destBookFiles).toContain("book_third.md"); // из подкаталога other
+
   const foundFiles = readDir("./test_sitebuilder/dest_correct", () => true);
 
   foundFiles.forEach((filename) => {
