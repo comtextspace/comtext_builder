@@ -52,7 +52,7 @@ export function saveFileToCache(filePath, cacheFileName) {
     return true;
   } catch (error) {
     console.error(`❌ Ошибка при сохранении в кеш: ${error.message}`);
-    return false;
+    process.exit(1);
   }
 }
 
@@ -77,5 +77,6 @@ export function cleanupOldCache() {
     }
   } catch (error) {
     console.error(`❌ Ошибка при очистке кеша: ${error.message}`);
+    process.exit(1);
   }
 }
