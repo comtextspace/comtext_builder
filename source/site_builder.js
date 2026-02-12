@@ -5,7 +5,7 @@ import { createHash } from "crypto";
 import YAML from "yaml";
 import AdmZip from "adm-zip";
 import matter from "gray-matter";
-import { transliterate } from 'transliteration';
+import { transliterate } from "transliteration";
 
 import { initCache, cleanupOldCache } from "./cache.js";
 import { addBookToOPDS, saveOPDS } from "./opdsBuilder.js";
@@ -127,7 +127,7 @@ const expandPageOrDir = (pagePath) => {
       throw new Error(`Неизвестный тип: ${pagePath}`);
     }
   } catch (error) {
-    if (error.code === 'ENOENT') {
+    if (error.code === "ENOENT") {
       throw new Error(`Путь не существует: ${pagePath}`);
     }
     throw error;
@@ -175,7 +175,7 @@ const moveBookMd = (bookMdFilename) => {
   const bookDir = path.join(sourceDir, path.dirname(bookMdFilename));
   const bookBasename = path.basename(bookMdFilename);
   const bookBasenameWithoutExt = path.basename(bookMdFilename, path.extname(bookMdFilename));
-  const translitBookBasenameWithoutExt = transliterate(bookBasenameWithoutExt)
+  const translitBookBasenameWithoutExt = transliterate(bookBasenameWithoutExt);
   const sourceImagesPath = path.join(bookDir, IMAGE_DIR);
 
   const destBookPath = path.join(destMdDir, bookBasename);

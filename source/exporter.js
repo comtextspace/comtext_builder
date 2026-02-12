@@ -29,7 +29,7 @@ export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, deb
   execSync(sedCommand1);
 
   // Обновляем program-used
-  const programUsed = 'Экспорт из формата Комтекст (https://comtext.space) через Pandoc';
+  const programUsed = "Экспорт из формата Комтекст (https://comtext.space) через Pandoc";
   const sedCommand2 = `sed -i 's|<program-used>.*</program-used>|<program-used>${programUsed}</program-used>|' "${fb2FilePath}"`;
   execSync(sedCommand2);
 

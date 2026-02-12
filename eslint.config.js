@@ -28,10 +28,11 @@ export default [
   // Игнорируемые файлы (вместо .eslintignore)
   {
     ignores: [
-      'node_modules/',
-      '*.config.js',
-      'docs/.vuepress/.cache/',
-      'docs/.vuepress/.temp/',
+      "node_modules/",
+      "*.config.js",
+      "docs/.vuepress/.cache/",
+      "docs/.vuepress/.temp/",
+      "docs/.vuepress/dist/",
     ],
   },
 ];
