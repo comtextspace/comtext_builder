@@ -102,6 +102,7 @@ export default {
     lastUpdatedText: "Последниее изменение",
     navbar: [
       { text: "Обновления в TG", link: "https://t.me/pensadoj" },
+      { text: "OPDS", link: "/opds" },
     ],
   }),
 

@@ -4,6 +4,7 @@ node_modules
 
 docs/**/*.ct
 docs/**/*.md
+!docs/opds.md
 docs/**/*.yml
 docs/**/*.yaml
 docs/**/*.png
