@@ -1,4 +1,5 @@
 import { execSync } from "child_process";
+import { createHash } from "crypto";
 import { tryRestoreFileFromCache, saveFileToCache } from "./cache.js";
 
 /**
@@ -7,9 +8,11 @@ import { tryRestoreFileFromCache, saveFileToCache } from "./cache.js";
  * @param {string} fb2FilePath - путь к выходному .fb2 файлу
  * @param {string} resourcePath - путь к ресурсам для Pandoc
  * @param {string} commitHash - хеш коммита для вставки в метаданные
+ * @param {string} siteTitle - название сайта из конфига
+ * @param {string} bookFilename - название файла книги
  * @param {boolean} debug - режим отладки
  */
-export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, debug = false) {
+export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, siteTitle, bookFilename, debug = false) {
   const pandocCommand =
     `pandoc ${ctFilePath} ` +
     `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
@@ -36,6 +39,12 @@ export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, deb
   // Добавляем версию (commit hash)
   const sedCommand3 = `sed -i 's/<\\/document-info>/<version>${commitHash}<\\/version><\\/document-info>/' "${fb2FilePath}"`;
   execSync(sedCommand3);
+
+  // Добавляем id (хеш от siteTitle|bookFilename) перед закрывающим тегом document-info
+  const idString = `${siteTitle}|${bookFilename}`;
+  const idHash = createHash("sha256").update(idString, "utf8").digest("hex");
+  const sedCommand4 = `sed -i 's|<\\/document-info>|<id>${idHash}</id>\\n  </document-info>|' "${fb2FilePath}"`;
+  execSync(sedCommand4);
 }
 
 /**
@@ -68,14 +77,16 @@ export function exportEpub(ctFilePath, epubFilePath, resourcePath) {
  * @param {string} ctFilePath - путь к исходному .ct файлу
  * @param {string} resourcePath - путь к ресурсам
  * @param {string} commitHash - хеш коммита
+ * @param {string} siteTitle - название сайта из конфига
+ * @param {string} bookFilename - название файла книги
  * @param {boolean} debug - режим отладки
  */
-export function exportFb2WithCache(cacheFileName, outputPath, ctFilePath, resourcePath, commitHash, debug) {
+export function exportFb2WithCache(cacheFileName, outputPath, ctFilePath, resourcePath, commitHash, siteTitle, bookFilename, debug) {
   const loadedFromCache = tryRestoreFileFromCache(cacheFileName, outputPath);
   if (loadedFromCache) {
     console.log("Loaded from cache");
   } else {
-    exportFb2(ctFilePath, outputPath, resourcePath, commitHash, debug);
+    exportFb2(ctFilePath, outputPath, resourcePath, commitHash, siteTitle, bookFilename, debug);
     saveFileToCache(outputPath, cacheFileName);
   }
 }

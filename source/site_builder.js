@@ -243,7 +243,8 @@ const moveBookMd = (bookMdFilename) => {
   const fb2Timer = startTimer();
   const fb2CacheFileName = `fb2--${translitBookBasenameWithoutExt}-|-${cacheId}--${sourceHash}.fb2`;
   
-  exportFb2WithCache(fb2CacheFileName, fb2FilePath, destCtFileForConvertPath, destPublicDir, commitHash, DEBUG);
+  const siteTitle = config.vuepress?.title || "";
+  exportFb2WithCache(fb2CacheFileName, fb2FilePath, destCtFileForConvertPath, destPublicDir, commitHash, siteTitle, bookBasename, DEBUG);
   fs.copyFileSync(fb2FilePath, fb2FilePathTrans);
   endTimer(fb2Timer);
 
