@@ -43,7 +43,7 @@ export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, sit
   // Добавляем id (хеш от siteTitle|bookFilename) перед закрывающим тегом document-info
   const idString = `${siteTitle}|${bookFilename}`;
   const idHash = createHash("sha256").update(idString, "utf8").digest("hex");
-  const sedCommand4 = `sed -i 's|<\\/document-info>|<id>${idHash}</id>\\n  </document-info>|' "${fb2FilePath}"`;
+  const sedCommand4 = `sed -i 's|<\\/document-info>|<id>${idHash}</id></document-info>|' "${fb2FilePath}"`;
   execSync(sedCommand4);
 
   // Добавляем дату генерации файла перед закрывающим тегом document-info
@@ -53,7 +53,7 @@ export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, sit
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const year = now.getFullYear();
   const formattedDate = `${day}.${month}.${year}`; // DD.MM.YYYY
-  const sedCommand5 = `sed -i 's|<\\/document-info>|<date value="${isoDate}">${formattedDate}</date>\\n  </document-info>|' "${fb2FilePath}"`;
+  const sedCommand5 = `sed -i 's|<\\/document-info>|<date value="${isoDate}">${formattedDate}</date></document-info>|' "${fb2FilePath}"`;
   execSync(sedCommand5);
 }
 
