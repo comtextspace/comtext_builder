@@ -36,8 +36,14 @@ export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, sit
   const sedCommand2 = `sed -i 's|<program-used>.*</program-used>|<program-used>${programUsed}</program-used>|' "${fb2FilePath}"`;
   execSync(sedCommand2);
 
-  // Добавляем версию (commit hash)
-  const sedCommand3 = `sed -i 's/<\\/document-info>/<version>${commitHash}<\\/version><\\/document-info>/' "${fb2FilePath}"`;
+  // Добавляем дату генерации файла перед закрывающим тегом document-info
+  const now = new Date();
+  const isoDate = now.toISOString().split("T")[0]; // YYYY-MM-DD
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const year = now.getFullYear();
+  const formattedDate = `${day}.${month}.${year}`; // DD.MM.YYYY
+  const sedCommand3 = `sed -i 's|<\\/document-info>|<date value="${isoDate}">${formattedDate}</date></document-info>|' "${fb2FilePath}"`;
   execSync(sedCommand3);
 
   // Добавляем id (хеш от siteTitle|bookFilename) перед закрывающим тегом document-info
@@ -46,14 +52,8 @@ export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, sit
   const sedCommand4 = `sed -i 's|<\\/document-info>|<id>${idHash}</id></document-info>|' "${fb2FilePath}"`;
   execSync(sedCommand4);
 
-  // Добавляем дату генерации файла перед закрывающим тегом document-info
-  const now = new Date();
-  const isoDate = now.toISOString().split("T")[0]; // YYYY-MM-DD
-  const day = String(now.getDate()).padStart(2, "0");
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const year = now.getFullYear();
-  const formattedDate = `${day}.${month}.${year}`; // DD.MM.YYYY
-  const sedCommand5 = `sed -i 's|<\\/document-info>|<date value="${isoDate}">${formattedDate}</date></document-info>|' "${fb2FilePath}"`;
+  // Добавляем версию (commit hash) перед закрывающим тегом document-info
+  const sedCommand5 = `sed -i 's|<\\/document-info>|<version>${commitHash}</version></document-info>|' "${fb2FilePath}"`;
   execSync(sedCommand5);
 }
 
