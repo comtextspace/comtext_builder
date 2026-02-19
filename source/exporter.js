@@ -31,6 +31,10 @@ export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, sit
   const sedCommand1 = `sed -i '0,/<title><p>[^<]*<\\/p><\\/title>/s///' "${fb2FilePath}"`;
   execSync(sedCommand1);
 
+  // Добавляем author сразу после открытия document-info
+  const sedCommandAuthor = `sed -i 's|<document-info>|<document-info><author><nickname>Анонимный текстолог</nickname></author>|' "${fb2FilePath}"`;
+  execSync(sedCommandAuthor);
+
   // Обновляем program-used
   const programUsed = "Экспорт из формата Комтекст (https://comtext.space) через Pandoc";
   const sedCommand2 = `sed -i 's|<program-used>.*</program-used>|<program-used>${programUsed}</program-used>|' "${fb2FilePath}"`;
