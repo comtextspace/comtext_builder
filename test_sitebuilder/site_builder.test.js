@@ -37,7 +37,7 @@ import { build } from "../source/site_builder.js";
 
 beforeEach(() => {
   jest.useFakeTimers();
-  jest.setSystemTime(new Date("2023-01-01T12:00:00Z"));
+  jest.setSystemTime(new Date("2026-01-20T14:33:00Z"));
 });
 
 afterEach(() => {

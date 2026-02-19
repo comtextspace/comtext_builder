@@ -140,7 +140,7 @@ const movePages = () => {
   allPages.forEach((pageFilename) => {
     const sourceFilename = path.join(sourceDir, pageFilename);
     const destFilename = path.join(destMdDir, pageFilename);
-    
+
     // Создаем необходимые подкаталоги в dest
     const destDir = path.dirname(destFilename);
     if (!fs.existsSync(destDir)) {
@@ -312,14 +312,14 @@ for (const entry of zip.getEntries()) {
   // Сохраняем архив
   zip.writeZip(zipFilePath);
 };
-
+ 
 const moveBooks = () => {
   if (!config.books) {
     return;
   }
   
   const allBooks = config.books.flatMap(bookPath => expandPageOrDir(bookPath));
-  
+
   for (const bookFilename of allBooks) {
     if (path.extname(bookFilename) !== ".md") {
       throw new Error(`Неизвестное расширение файла книги "${bookFilename}"`); 

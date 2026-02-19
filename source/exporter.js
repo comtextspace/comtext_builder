@@ -56,8 +56,16 @@ export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, sit
   const sedCommand4 = `sed -i 's|<\\/document-info>|<id>${idHash}</id></document-info>|' "${fb2FilePath}"`;
   execSync(sedCommand4);
 
-  // Добавляем версию (commit hash) перед закрывающим тегом document-info
-  const sedCommand5 = `sed -i 's|<\\/document-info>|<version>${commitHash}</version></document-info>|' "${fb2FilePath}"`;
+  // Вычисляем версию на основе текущего времени
+  // Версия = дни с 2026-01-01 + минуты с начала дня / 10000
+  // (первая минута = 0.0001, вторая = 0.0002, десятая = 0.001)
+  const baseDate = new Date("2026-01-01T00:00:00Z");
+  const days = Math.floor((now - baseDate) / (1000 * 60 * 60 * 24));
+  const minutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+  const versionNumber = days + minutes / 10000;
+  
+  // Добавляем версию (float число) перед закрывающим тегом document-info
+  const sedCommand5 = `sed -i 's|<\\/document-info>|<version>${versionNumber}</version></document-info>|' "${fb2FilePath}"`;
   execSync(sedCommand5);
 }
 
