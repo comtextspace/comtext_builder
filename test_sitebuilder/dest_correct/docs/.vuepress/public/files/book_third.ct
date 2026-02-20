@@ -4,6 +4,9 @@ author:
 - Петров Марк Анатольевич
 cover-image: img/book_third.png
 lang: ru-RU
+genre:
+- sci_history
+- sci_philosophy
 ---
 
 # Третья книга

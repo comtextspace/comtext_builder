@@ -10,9 +10,10 @@ import { tryRestoreFileFromCache, saveFileToCache } from "./cache.js";
  * @param {string} commitHash - хеш коммита для вставки в метаданные
  * @param {string} siteTitle - название сайта из конфига
  * @param {string} bookFilename - название файла книги
+ * @param {string[]} genres - массив жанров из frontmatter
  * @param {boolean} debug - режим отладки
  */
-export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, siteTitle, bookFilename, debug = false) {
+export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, siteTitle, bookFilename, genres = [], debug = false) {
   const pandocCommand =
     `pandoc ${ctFilePath} ` +
     `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
@@ -30,6 +31,17 @@ export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, sit
   // Удаляем первый title из FB2
   const sedCommand1 = `sed -i '0,/<title><p>[^<]*<\\/p><\\/title>/s///' "${fb2FilePath}"`;
   execSync(sedCommand1);
+
+  // Если указано несколько жанров, заменяем <genre>unrecognised</genre> на список жанров
+  // Pandoc при нескольких жанрах ставит unrecognised, при одном - правильный жанр
+  if (genres.length > 1) {
+    // Создаем строку с тегами жанров
+    const genresXml = genres.map(genre => `<genre>${genre}</genre>`).join("");
+    // Заменяем первое вхождение <genre>unrecognised</genre> в секции title-info
+    // Используем двойные кавычки для sed, экранируя специальные символы
+    const sedCommandGenres = `sed -i "0,/<genre>unrecognised<\\/genre>/s|<genre>unrecognised<\\/genre>|${genresXml}|" "${fb2FilePath}"`;
+    execSync(sedCommandGenres);
+  }
 
   // Добавляем author сразу после открытия document-info
   const sedCommandAuthor = `sed -i 's|<document-info>|<document-info><author><nickname>Анонимный текстолог</nickname></author>|' "${fb2FilePath}"`;
@@ -107,14 +119,15 @@ export function exportEpub(ctFilePath, epubFilePath, resourcePath) {
  * @param {string} commitHash - хеш коммита
  * @param {string} siteTitle - название сайта из конфига
  * @param {string} bookFilename - название файла книги
+ * @param {string[]} genres - массив жанров из frontmatter
  * @param {boolean} debug - режим отладки
  */
-export function exportFb2WithCache(cacheFileName, outputPath, ctFilePath, resourcePath, commitHash, siteTitle, bookFilename, debug) {
+export function exportFb2WithCache(cacheFileName, outputPath, ctFilePath, resourcePath, commitHash, siteTitle, bookFilename, genres = [], debug) {
   const loadedFromCache = tryRestoreFileFromCache(cacheFileName, outputPath);
   if (loadedFromCache) {
     console.log("Loaded from cache");
   } else {
-    exportFb2(ctFilePath, outputPath, resourcePath, commitHash, siteTitle, bookFilename, debug);
+    exportFb2(ctFilePath, outputPath, resourcePath, commitHash, siteTitle, bookFilename, genres, debug);
     saveFileToCache(outputPath, cacheFileName);
   }
 }

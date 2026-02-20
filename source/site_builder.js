@@ -239,12 +239,21 @@ const moveBookMd = (bookMdFilename) => {
 
   const sourceHash = getHash(bookContentComtextForConvert);
 
+  // Извлекаем frontmatter для получения жанров
+  const { data } = matter(bookContent);
+  
+  // Нормализуем genre: если строка - делаем массив, если массив - оставляем как есть
+  let genres = [];
+  if (data.genre) {
+    genres = Array.isArray(data.genre) ? data.genre : [data.genre];
+  }
+
   console.log("Export to fb2");
   const fb2Timer = startTimer();
   const fb2CacheFileName = `fb2--${translitBookBasenameWithoutExt}-|-${cacheId}--${sourceHash}.fb2`;
   
   const siteTitle = config.vuepress?.title || "";
-  exportFb2WithCache(fb2CacheFileName, fb2FilePath, destCtFileForConvertPath, destPublicDir, commitHash, siteTitle, bookBasename, DEBUG);
+  exportFb2WithCache(fb2CacheFileName, fb2FilePath, destCtFileForConvertPath, destPublicDir, commitHash, siteTitle, bookBasename, genres, DEBUG);
   fs.copyFileSync(fb2FilePath, fb2FilePathTrans);
   endTimer(fb2Timer);
 
@@ -256,7 +265,10 @@ const moveBookMd = (bookMdFilename) => {
   exportEpubWithCache(epubCacheFileName, epubFilePath, destCtFileForConvertPath, destPublicDir);
   endTimer(epubTimer);
 
-  const { data } = matter(bookContent);
+  // Удаляем временный .temp.ct файл после использования
+  if (fs.existsSync(destCtFileForConvertPath)) {
+    fs.unlinkSync(destCtFileForConvertPath);
+  }
 
   if (data.title) {
   const opdsTitle = data.title;
