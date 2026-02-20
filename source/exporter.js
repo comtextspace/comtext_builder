@@ -32,6 +32,13 @@ export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, sit
   const sedCommand1 = `sed -i '0,/<title><p>[^<]*<\\/p><\\/title>/s///' "${fb2FilePath}"`;
   execSync(sedCommand1);
 
+  // Исправляем атрибут l:type у изображений: заменяем imageType и inlineImageType на simple
+  // XSD схема требует фиксированное значение "simple" для xlink:type
+  const sedCommandImageType1 = `sed -i 's|l:type="imageType"|l:type="simple"|g' "${fb2FilePath}"`;
+  execSync(sedCommandImageType1);
+  const sedCommandImageType2 = `sed -i 's|l:type="inlineImageType"|l:type="simple"|g' "${fb2FilePath}"`;
+  execSync(sedCommandImageType2);
+
   // Если указано несколько жанров, заменяем <genre>unrecognised</genre> на список жанров
   // Pandoc при нескольких жанрах ставит unrecognised, при одном - правильный жанр
   if (genres.length > 1) {

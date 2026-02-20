@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { execSync } from "child_process";
 
 import { jest } from "@jest/globals";
 
@@ -102,6 +103,37 @@ test("buildSite", async () => {
   
     expect(testFile).toEqual(correctFile);
   });
+
+  // Проверка валидности FB2 файлов по XSD схеме
+  const xsdPath = path.join("./test_sitebuilder/files/fb2-xsd/FictionBook.xsd");
+  const fb2Files = fs.readdirSync("./test_sitebuilder/dest/docs/.vuepress/public/files")
+    .filter(file => file.endsWith(".fb2"))
+    .map(file => path.join("./test_sitebuilder/dest/docs/.vuepress/public/files", file));
+
+  // Проверяем наличие xmllint
+  let xmllintAvailable = false;
+  try {
+    execSync("which xmllint", { stdio: "ignore" });
+    xmllintAvailable = true;
+  } catch (e) {
+    console.warn("xmllint не найден, проверка валидности FB2 по XSD пропущена");
+  }
+
+  if (xmllintAvailable && fs.existsSync(xsdPath)) {
+    fb2Files.forEach((fb2File) => {
+      try {
+        const result = execSync(
+          `xmllint --noout --schema "${xsdPath}" "${fb2File}"`,
+          { encoding: "utf-8", stdio: "pipe" }
+        );
+        // Если валидация прошла успешно, xmllint не выводит ничего
+        expect(result).toBe("");
+      } catch (error) {
+        const errorMessage = error.stdout || error.stderr || error.message;
+        throw new Error(`FB2 файл ${path.basename(fb2File)} не прошел валидацию по XSD:\n${errorMessage}`);
+      }
+    });
+  }
 });
 
 // TODO нет проверки на то, что генерируются все нужные файлы

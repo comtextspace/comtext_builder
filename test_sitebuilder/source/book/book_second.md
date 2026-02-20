@@ -3,6 +3,7 @@ title: Вторая книга
 author:
 - Аристотель
 genre: sci_history
+lang: ru
 ---
 
 # Вторая книга
