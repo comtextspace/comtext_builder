@@ -80,9 +80,9 @@ export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, sit
   const sedCommand5 = `sed -i 's|<\\/document-info>|<version>${versionNumber}</version></document-info>|' "${fb2FilePath}"`;
   execSync(sedCommand5);
 
-  // Добавляем custom-info с хешем коммита перед закрывающим тегом document-info
+  // Добавляем custom-info с хешем коммита в конец description, но вне document-info
   if (commitHash) {
-    const sedCommand6 = `sed -i 's|<\\/document-info>|<custom-info info-type="git-hash">${commitHash}</custom-info></document-info>|' "${fb2FilePath}"`;
+    const sedCommand6 = `sed -i 's|<\\/description>|<custom-info info-type="git-hash">${commitHash}</custom-info></description>|' "${fb2FilePath}"`;
     execSync(sedCommand6);
   }
 }
