@@ -239,7 +239,7 @@ const moveBookMd = (bookMdFilename) => {
 
   const sourceHash = getHash(bookContentComtextForConvert);
 
-  // Извлекаем frontmatter для получения жанров и даты
+  // Извлекаем frontmatter для получения жанров
   const { data } = matter(bookContent);
   
   // Нормализуем genre: если строка - делаем массив, если массив - оставляем как есть
@@ -248,15 +248,12 @@ const moveBookMd = (bookMdFilename) => {
     genres = Array.isArray(data.genre) ? data.genre : [data.genre];
   }
 
-  // Извлекаем дату издания книги
-  const bookDate = data.date || null;
-
   console.log("Export to fb2");
   const fb2Timer = startTimer();
   const fb2CacheFileName = `fb2--${translitBookBasenameWithoutExt}-|-${cacheId}--${sourceHash}.fb2`;
   
   const siteTitle = config.vuepress?.title || "";
-  exportFb2WithCache(fb2CacheFileName, fb2FilePath, destCtFileForConvertPath, destPublicDir, commitHash, siteTitle, bookBasename, genres, bookDate, DEBUG);
+  exportFb2WithCache(fb2CacheFileName, fb2FilePath, destCtFileForConvertPath, destPublicDir, commitHash, siteTitle, bookBasename, genres, DEBUG);
   fs.copyFileSync(fb2FilePath, fb2FilePathTrans);
   endTimer(fb2Timer);
 
