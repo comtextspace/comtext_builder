@@ -4,6 +4,7 @@ author:
 - Аристотель
 genre: sci_history
 lang: ru
+date: 1863
 ---
 
 # Вторая книга

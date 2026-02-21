@@ -11,9 +11,10 @@ import { tryRestoreFileFromCache, saveFileToCache } from "./cache.js";
  * @param {string} siteTitle - название сайта из конфига
  * @param {string} bookFilename - название файла книги
  * @param {string[]} genres - массив жанров из frontmatter
+ * @param {string|null} bookDate - дата издания книги из frontmatter
  * @param {boolean} debug - режим отладки
  */
-export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, siteTitle, bookFilename, genres = [], debug = false) {
+export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, siteTitle, bookFilename, genres = [], bookDate = null, debug = false) {
   const pandocCommand =
     `pandoc ${ctFilePath} ` +
     `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
@@ -48,6 +49,55 @@ export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, sit
     // Используем двойные кавычки для sed, экранируя специальные символы
     const sedCommandGenres = `sed -i "0,/<genre>unrecognised<\\/genre>/s|<genre>unrecognised<\\/genre>|${genresXml}|" "${fb2FilePath}"`;
     execSync(sedCommandGenres);
+  }
+
+  // Добавляем дату издания книги в title-info, если она указана в frontmatter
+  if (bookDate) {
+    // Сначала удаляем все даты в title-info (Pandoc может добавить дату из frontmatter)
+    // Удаляем даты без атрибута value (которые добавляет Pandoc) и с атрибутом value
+    // Используем sed для удаления всех <date> тегов в секции title-info
+    const sedCommandRemovePandocDate = `sed -i '/<title-info>/,/<\\/title-info>/s|<date[^>]*>[^<]*<\\/date>||g' "${fb2FilePath}"`;
+    execSync(sedCommandRemovePandocDate);
+    
+    // Преобразуем дату в строку (gray-matter может вернуть Date объект или число)
+    let dateStr = String(bookDate);
+    
+    // Если это объект Date, преобразуем в ISO строку
+    if (bookDate instanceof Date) {
+      dateStr = bookDate.toISOString().split("T")[0]; // YYYY-MM-DD
+    }
+    
+    // Парсим дату: может быть полной (YYYY-MM-DD) или только год (YYYY)
+    let dateValue = null;
+    let dateText = dateStr;
+    
+    // Проверяем, является ли дата полной (YYYY-MM-DD)
+    const fullDateMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (fullDateMatch) {
+      dateValue = dateStr; // ISO формат для атрибута value
+      const [, year, month, day] = fullDateMatch;
+      dateText = `${day}.${month}.${year}`; // DD.MM.YYYY для текста
+    } else {
+      // Если только год, проверяем формат YYYY
+      const yearMatch = dateStr.match(/^(\d{4})$/);
+      if (yearMatch) {
+        dateValue = `${dateStr}-01-01`; // Используем первое января для атрибута value
+        dateText = dateStr; // Только год для текста
+      }
+    }
+    
+    // Формируем XML тег date
+    let dateXml = `<date`;
+    if (dateValue) {
+      dateXml += ` value="${dateValue}"`;
+    }
+    dateXml += `>${dateText}</date>`;
+    
+    // Добавляем дату сразу после book-title (обязательный элемент, всегда присутствует)
+    // Экранируем специальные символы для sed
+    const escapedDateXml = dateXml.replace(/\$/g, "\\$").replace(/&/g, "\\&");
+    const sedCommandDate = `sed -i 's|<\\/book-title>|</book-title>${escapedDateXml}|' "${fb2FilePath}"`;
+    execSync(sedCommandDate);
   }
 
   // Добавляем author сразу после открытия document-info
@@ -127,14 +177,15 @@ export function exportEpub(ctFilePath, epubFilePath, resourcePath) {
  * @param {string} siteTitle - название сайта из конфига
  * @param {string} bookFilename - название файла книги
  * @param {string[]} genres - массив жанров из frontmatter
+ * @param {string|null} bookDate - дата издания книги из frontmatter
  * @param {boolean} debug - режим отладки
  */
-export function exportFb2WithCache(cacheFileName, outputPath, ctFilePath, resourcePath, commitHash, siteTitle, bookFilename, genres = [], debug) {
+export function exportFb2WithCache(cacheFileName, outputPath, ctFilePath, resourcePath, commitHash, siteTitle, bookFilename, genres = [], bookDate = null, debug) {
   const loadedFromCache = tryRestoreFileFromCache(cacheFileName, outputPath);
   if (loadedFromCache) {
     console.log("Loaded from cache");
   } else {
-    exportFb2(ctFilePath, outputPath, resourcePath, commitHash, siteTitle, bookFilename, genres, debug);
+    exportFb2(ctFilePath, outputPath, resourcePath, commitHash, siteTitle, bookFilename, genres, bookDate, debug);
     saveFileToCache(outputPath, cacheFileName);
   }
 }

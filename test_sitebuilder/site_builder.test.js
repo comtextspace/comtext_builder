@@ -115,7 +115,7 @@ test("buildSite", async () => {
   try {
     execSync("which xmllint", { stdio: "ignore" });
     xmllintAvailable = true;
-  } catch (e) {
+  } catch {
     console.warn("xmllint не найден, проверка валидности FB2 по XSD пропущена");
   }
 
