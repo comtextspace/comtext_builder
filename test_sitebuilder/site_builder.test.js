@@ -47,6 +47,12 @@ afterEach(() => {
 
 test("buildSite", async () => {
 
+  // Удаляем кеш перед запуском тестов
+  fs.rmSync("./test_sitebuilder/export-cache", {
+    recursive: true,
+    force: true,
+  });
+
   fs.rmSync("./test_sitebuilder/dest", {
     recursive: true,
     force: true,

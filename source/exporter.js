@@ -19,7 +19,8 @@ export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, sit
     `-s -f markdown -t fb2 -o ${fb2FilePath} ` +
     `--resource-path=${resourcePath} ` +
     `--lua-filter=source/pandoc/remove-cover.lua ` +
-    `--lua-filter=source/pandoc/remove-toc.lua`;
+    `--lua-filter=source/pandoc/remove-toc.lua ` +
+    `--lua-filter=source/pandoc/wrap-code-blocks.lua`;
 
   const res = execSync(pandocCommand);
 
