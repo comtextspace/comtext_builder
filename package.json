@@ -36,6 +36,7 @@
     "lint-fix": "eslint . --fix"
   },
   "dependencies": {
+    "@xmldom/xmldom": "^0.8.10",
     "adm-zip": "^0.5.16",
     "lodash": "^4.17.21",
     "yaml": "^1.10.2"

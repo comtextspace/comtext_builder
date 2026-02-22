@@ -1,5 +1,7 @@
 import { execSync } from "child_process";
 import { createHash } from "crypto";
+import fs from "fs";
+import { DOMParser, XMLSerializer } from "@xmldom/xmldom";
 import { tryRestoreFileFromCache, saveFileToCache } from "./cache.js";
 
 /**
@@ -94,6 +96,113 @@ export function exportFb2(ctFilePath, fb2FilePath, resourcePath, commitHash, sit
     const sedCommand6 = `sed -i 's|<\\/description>|<custom-info info-type="git-hash">${commitHash}</custom-info></description>|' "${fb2FilePath}"`;
     execSync(sedCommand6);
   }
+
+  // Оборачиваем контент в секции, если в секции есть и контент, и дочерние секции
+  wrapSectionContent(fb2FilePath);
+}
+
+/**
+ * Оборачивает контент в отдельные секции для соответствия XSD схеме FB2
+ * @param {string} fb2FilePath - путь к FB2 файлу
+ */
+function wrapSectionContent(fb2FilePath) {
+  const xmlContent = fs.readFileSync(fb2FilePath, "utf-8");
+  const parser = new DOMParser({
+    errorHandler: {
+      warning: () => {},
+      error: () => {},
+      fatalError: (e) => {
+        throw e;
+      }
+    }
+  });
+  
+  const doc = parser.parseFromString(xmlContent, "text/xml");
+  const namespace = "http://www.gribuser.ru/xml/fictionbook/2.0";
+  
+  let wrapperCounter = 0;
+  
+  // Находим все секции
+  const sections = doc.getElementsByTagNameNS(namespace, "section");
+  
+  // Обрабатываем секции в обратном порядке (от вложенных к корневым)
+  for (let i = sections.length - 1; i >= 0; i--) {
+    const section = sections[i];
+    
+    // Проверяем, есть ли в секции и контент, и дочерние секции
+    const childNodes = Array.from(section.childNodes);
+    const hasContent = childNodes.some(node => {
+      if (node.nodeType === 1) { // Element node
+        const localName = node.localName || node.nodeName.split(":")[1] || node.nodeName;
+        return localName === "p" || localName === "poem" || localName === "subtitle" || 
+               localName === "cite" || localName === "empty-line" || localName === "table" ||
+               localName === "image";
+      }
+      return false;
+    });
+    
+    const hasChildSections = childNodes.some(node => {
+      if (node.nodeType === 1) {
+        const localName = node.localName || node.nodeName.split(":")[1] || node.nodeName;
+        return localName === "section";
+      }
+      return false;
+    });
+    
+    // Если есть и контент, и дочерние секции - нужно обернуть контент
+    if (hasContent && hasChildSections) {
+      // Разделяем контент и дочерние секции
+      const contentNodes = [];
+      const childSectionNodes = [];
+      const otherNodes = []; // title, epigraph, image, annotation
+      
+      childNodes.forEach(node => {
+        if (node.nodeType === 1) {
+          const localName = node.localName || node.nodeName.split(":")[1] || node.nodeName;
+          if (localName === "section") {
+            childSectionNodes.push(node);
+          } else if (localName === "p" || localName === "poem" || localName === "subtitle" || 
+                     localName === "cite" || localName === "empty-line" || localName === "table" ||
+                     localName === "image") {
+            contentNodes.push(node);
+          } else {
+            otherNodes.push(node); // title, epigraph, annotation и т.д.
+          }
+        } else {
+          otherNodes.push(node); // текстовые узлы
+        }
+      });
+      
+      if (contentNodes.length > 0) {
+        // Создаем новую секцию без title для контента
+        // Секции без title не отображаются в оглавлении читалок, но контент внутри них виден
+        wrapperCounter++;
+        const baseId = section.getAttribute("id") || "";
+        const wrapperId = baseId ? `${baseId}-wrapper-${wrapperCounter}` : `wrapper-section-${wrapperCounter}`;
+        
+        const wrapperSection = doc.createElementNS(namespace, "section");
+        wrapperSection.setAttribute("id", wrapperId);
+        
+        // Перемещаем контент в новую секцию
+        contentNodes.forEach(node => {
+          wrapperSection.appendChild(node.cloneNode(true));
+          section.removeChild(node);
+        });
+        
+        // Вставляем новую секцию перед дочерними секциями
+        if (childSectionNodes.length > 0) {
+          section.insertBefore(wrapperSection, childSectionNodes[0]);
+        } else {
+          section.appendChild(wrapperSection);
+        }
+      }
+    }
+  }
+  
+  // Сохраняем измененный XML
+  const serializer = new XMLSerializer();
+  const newXml = serializer.serializeToString(doc);
+  fs.writeFileSync(fb2FilePath, newXml, "utf-8");
 }
 
 /**
